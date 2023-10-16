@@ -1,4 +1,4 @@
-# FWHMscripts
+# FWHM Scripts
 
 
 Authors:Olivia Chiarini
