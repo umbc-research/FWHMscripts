@@ -23,3 +23,7 @@ Fit Profiles
 Calculate FWHM
 Convert from pixels at arcseconds
 """
+print("hello world")
+
+
+
