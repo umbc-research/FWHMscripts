@@ -28,10 +28,11 @@ Convert from pixels at arcseconds[ ]
 
 """
 TO DOS:
-take userinput
-make folder for users to place fits files in
-make filepath dynamio
-figure out how to display data
+take userinput for which fits file
+export images
+test profiles compared to other known scripts
+figure out how to display data, histrogram from pychart?
+optimize
 """
 
 
@@ -47,7 +48,9 @@ def loadFits(fitsname):
 
 if __name__ == '__main__':
   print("work in progress as of 10/23, contact Olivia Chiarini (c241@umbc.edu) with questions")
-  loadFits('theta_herc_00001')
+  global fits_filename
+  fits_filename = input("Name of .fits, exlcuding .fits")
+  loadFits(fits_filename)
   hdul.info()
 
   hdul.close()
