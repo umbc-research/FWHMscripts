@@ -1,7 +1,9 @@
 import astropy
 import scipy
 import numpy
-import astropy.io
+import astropy
+from astropy.io import fits
+from pathlib import Path
 
 """
 Authors:Olivia Chiarini
@@ -13,15 +15,15 @@ for FWHM and focusing analyizse.
 
 """
 GOALS:
-Load in FITS file
-Find Sources
-Fit Profiles
-  -Vertical
-  -Horizontal
-  -Radial
- Extract STDV
-Calculate FWHM
-Convert from pixels at arcseconds
+Load in FITS file [x]
+Find Sources[ ]
+Fit Profiles[ ]
+  -Vertical[ ]
+  -Horizontal[ ]
+  -Radial[ ]
+ Extract STDV[ ]
+Calculate FWHM[ ]
+Convert from pixels at arcseconds[ ]
 """
 
 """
@@ -32,30 +34,20 @@ make filepath dynamio
 figure out how to display data
 """
 
+
+
+fits_filename=None
+hdul=None
+
+
+def loadFits(fitsname):
+  global hdul
+  hdul = fits.open('{}{}{}{}'.format(Path.cwd(),'/fitsfiles/',fitsname,'.fits'))
+
+
 if __name__ == '__main__':
-  print("work in progress sorry :(")
-  
+  print("work in progress as of 10/23, contact Olivia Chiarini (c241@umbc.edu) with questions")
+  loadFits('theta_herc_00001')
+  hdul.info()
 
-
-
-#STEP ONE: load in fits file
-def loadFits():
-  fits_filename = fits.util.get_testdata_filepath('test0.fits')
-  hdul = fits.open(fits_filename)
-
-
-#STEP TWO: find sources
-
-
-#STEP THREE:fit profiles
-
-
-#STEP FOUR: extract STDVS
-
-
-#STEP FIVE: convert from pixels ot arcseconds
-
-
-#STEP SIX: display and export this info
-
-
+  hdul.close()
