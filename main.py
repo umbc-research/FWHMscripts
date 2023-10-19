@@ -7,15 +7,15 @@ from pathlib import Path
 from matplotlib import pyplot as plt
 
 """
-Authors:Olivia Chiarini
+Authors: Olivia Chiarini
 Research Advisors: Dr. Meyer and Roy Prouty
-Purpose: To analyze FWHM data from .fits files given by UMBC's Obsertvatory, 
+Purpose: To analyze FWHM data from .fits files given by the UMBC Obsertvatory, 
 compare these to SHARPCAP to see how they are getting their histograms 
-for FWHM and focusing analyizse. 
+for FWHM and focusing analyze. 
 """
 
 """
-GOALS:
+GOALs:
 Load in FITS file [x]
 Find Sources[ ]
 Fit Profiles[ ]
@@ -28,7 +28,7 @@ Convert from pixels at arcseconds[ ]
 """
 
 """
-TO DOS:
+TO DOs:
 take userinput for which fits file
 export images
 test profiles compared to other known scripts
