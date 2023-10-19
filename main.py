@@ -1,6 +1,6 @@
 import astropy
 import scipy
-import numpy 
+import numpy
 import astropy
 from astropy.io import fits
 from pathlib import Path
@@ -89,18 +89,17 @@ if __name__ == '__main__':
   done=False
   while(not done):
     try:
-      typeFit=input('What type of fit? 0 for vert, 1 for horz, 2 for 2d, 3 for radial, 4 for all and compare, 5 for esc:\t')
-      print(type((int(typeFit))))
-      if(type>4):
+      typeFit=int(input('What type of fit? 0 for vert, 1 for horz, 2 for 2d, 3 for radial, 4 for all and compare, 5 for esc:\t'))
+      if(typeFit>4):
         fwhmCalc(profileFit(input))
-      elif(type==4):
+      elif(typeFit==5):
         break
       else:
         for x in range(0,5):
-          fwhmCalc(profilefit(x))
+          fwhmCalc(profileFit(x))
       done=True
     except(Exception):
-      print("Make sure your input was a number, and your fits file is correct!")
+     print("Make sure your input was a number, and your fits file is correct!")
 
   #hdul.info()
 
