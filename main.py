@@ -1,6 +1,6 @@
 import astropy
 import scipy
-import numpy
+import numpy 
 import astropy
 from astropy.io import fits
 from pathlib import Path
