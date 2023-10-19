@@ -48,8 +48,10 @@ def loadFits(fitsname):
 
 if __name__ == '__main__':
   print("work in progress as of 10/23, contact Olivia Chiarini (c241@umbc.edu) with questions")
-  global fits_filename
-  fits_filename = input("Name of .fits, exlcuding .fits")
+  fits_filename = input("Name of .fits, exlcuding .fits:\t")
+  if(fits_filename==""):
+    fits_filename='theta_herc_00001'
+
   loadFits(fits_filename)
   hdul.info()
 
