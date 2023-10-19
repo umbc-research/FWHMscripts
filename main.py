@@ -36,11 +36,8 @@ figure out how to display data, histrogram from pychart?
 optimize
 """
 
-
-
 fits_filename=None
 hdul=None
-
 
 #function to load in fits data, will eventually give a list of options and ask for num 1-9
 #TODO:make auto var a boolean, if true then just find the most recently edited fits
@@ -80,7 +77,8 @@ def fwhmCalc(prfFit):
 
 
 
-
+#TODO: Design workflow for 'batch' FITS file FWHM identification.
+#  - Read in (as command-line-input) the name of a directory and operate on all FITS files within
 if __name__ == '__main__':
   print("work in progress as of 10/23, contact Olivia Chiarini (c241@umbc.edu) with questions")
   
