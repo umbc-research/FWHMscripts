@@ -1,6 +1,9 @@
 from scipy.optimize import curve_fit
 from numpy import exp, linspace, random
 
+
+
+#meaningless comment
 def gaussian_1d(x, mu, sigma, amplitude, offset):
     return amplitude * exp( -((x-mu)/sigma)**2/2 ) + offset
 
