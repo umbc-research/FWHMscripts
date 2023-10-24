@@ -1,7 +1,7 @@
 # FWHM Scripts
 
 
-Authors:Olivia Chiarini and Roy Prouty 
+Authors:Olivia Chiarini, Roy Prouty, Azzan Porter, and Tara ODonnell
 
 Research Advisors: Dr. Meyer and Roy Prouty
 
