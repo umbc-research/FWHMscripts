@@ -8,7 +8,7 @@ def gaussian_1d(x, mu, sigma, amplitude, offset):
     return amplitude * exp( -((x-mu)/sigma)**2/2 ) + offset
 
 
-def fit_gaussian_1d(x_data, y_data, bounds):
+def fit_gaussian_1d(x_data, y_data, bounds=([40, 1, 500, 1],[60,100,75000, 25000])):
     #bounds go like this: ([minMu, minSig, minAmp, minOff],[maxMu, maxSig, maxAmp, maxOff])
     # find a cute way to extract these from the FITS file or make reasonable guesses
     #  Roy suggests supplying the function with bounds based on FITS data/physical constraints of our detectors 

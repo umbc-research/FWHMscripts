@@ -5,14 +5,8 @@ import astropy
 from astropy.io import fits
 from pathlib import Path
 from matplotlib import pyplot as plt
+from profileFitting import pffit 
 
-"""
-Authors: Olivia Chiarini
-Research Advisors: Dr. Meyer and Roy Prouty
-Purpose: To analyze FWHM data from .fits files given by the UMBC Obsertvatory, 
-compare these to SHARPCAP to see how they are getting their histograms 
-for FWHM and focusing analyze. 
-"""
 
 """
 GOALs:
