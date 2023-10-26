@@ -5,7 +5,7 @@ import astropy
 from astropy.io import fits
 from pathlib import Path
 from matplotlib import pyplot as plt
-from profileFitting import pffit 
+import profileFitting as pffit 
 
 
 """
@@ -82,13 +82,19 @@ if __name__ == '__main__':
   while(not done):
     try:
       typeFit=int(input('What type of fit? 0 for vert, 1 for horz, 2 for 2d, 3 for radial, 4 for all and compare, 5 for esc:\t'))
-      if(typeFit>4):
-        fwhmCalc(profileFit(input))
-      elif(typeFit==5):
-        break
-      else:
-        for x in range(0,5):
-          fwhmCalc(profileFit(x))
+      match typeFit:
+        case 0:
+          pffit.fitCase0(hdul)
+        case 1:
+          pffit.fitCase1(hdul)
+        case 2:
+          pffit.fitCase2(hdul)
+        case 3:
+          pffit.fitCase3(hdul)
+        case 4:
+          pffit.fitCase4(hdul)  
+        case _:
+          exit()
       done=True
     except(Exception):
      print("Make sure your input was a number, and your fits file is correct!")
