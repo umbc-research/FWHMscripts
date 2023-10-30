@@ -1,6 +1,6 @@
 import scipy
 import numpy as np
-
+  #Hi Olivia 
 import astropy
 from astropy.io import fits
 from photutils.detection import DAOStarFinder,IRAFStarFinder
