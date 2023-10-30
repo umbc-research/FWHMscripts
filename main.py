@@ -14,37 +14,29 @@ from sys import argv
 import profileFitting as pffit
 
 """
-GOALs:
-Load in FITS file [x]
-Find Sources[ ]
-Fit Profiles[ ]
-  -Vertical[ ]
-  -Horizontal[ ]
-  -Radial[ ]
- Extract STDV[ ]
-Calculate FWHM[ ]
-Convert from pixels at arcseconds[ ]
+OVERALL TODOS:
+  - Design workflow for 'batch' FITS file FWHM identification.
+  - Read in (as command-line-input) the name of a directory and operate on all FITS files within
+  - Some of the parameters in starfind should be made to update based on the measures of central tendancy above
+  - Adapt source code to work for all sources within some brightness threshold
+  - Build in support for changing plate scale (0.0317) for focal lengths
+      config file?
+  - Debug charts with curves displayed as well as original data
+  - Find a  way to extract bounds from the FITS file or make reasonable guesses
+    Roy suggests supplying the function with bounds based on FITS data/physical constraints of our detectors    
+     
 """
 
 fits_filename=None
 hdul=None
 
-#function to load in fits data, will eventually give a list of options and ask for num 1-9
-#TODO:make auto var a boolean, if true then just find the most recently edited fits
-def loadFits(fits_filename, auto=False):
+#function to load in fits data
+def loadFits(fits_filename):
   return fits.open(f'{fits_filename}')[0]
 
 #function to calculate FWHM for a profile fit, returns float value(may change this) of the FWHM data 
 #returns value in arcseconds, not pixels
-#TODO:make this into a live enoivrment thing which can dynamically show a fwhm for different fits or something like that?
-def fwhmCalc(prfFit):
 
-  return None
-
-
-
-#TODO: Design workflow for 'batch' FITS file FWHM identification.
-#  - Read in (as command-line-input) the name of a directory and operate on all FITS files within
 if __name__ == '__main__':
   print("work in progress as of 10/23, contact Olivia Chiarini (c241@umbc.edu) with questions")
 
@@ -68,7 +60,6 @@ if __name__ == '__main__':
   ####Find sources
   mean, median, std, max = np.mean(data), np.median(data), np.std(data), np.max(data)
 
-  #TODO: Some of the parameters here should be made to update based on the measures of central tendancy above
   starFind = DAOStarFinder(threshold=median, fwhm=20.0, sky=500, exclude_border=True, brightest=10, peakmax=70000)
   sourcesList = starFind(data)
   
@@ -103,7 +94,6 @@ if __name__ == '__main__':
   vertiParams = pffit.fit_gaussian_1d(x_data,verti_data)
 
   ####Convert the STD to FWHM and convert to " (arcsec) based on FITS header
-  #TODO: Build in support for changing plate scale (0.0317) for focal lengths
   radFWHM = 2.355*radialParams[1] * 0.0317 * pixSize
   horizFWHM = 2.355*horizParams[1] * 0.0317 * pixSize
   vertiFWHM = 2.355*vertiParams[1] * 0.0317 * pixSize
