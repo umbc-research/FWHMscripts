@@ -10,6 +10,10 @@ def fit_gaussian_1d(x_data, y_data, bounds=([40, 1, 500, 1],[60,100,75000, 25000
     params, cov = curve_fit(gaussian_1d, x_data, y_data, bounds=([40, 1, 500, 1],[60,100,75000, 25000]))
     return params
 
+def fit_gaussian_2d(x_data, y_data, bounds=([40, 1, 500, 1],[60,100,75000, 25000])):
+
+    return None
+
 def extract_radial_data(data, xC, yC):
     #Get matrix of integer indices associated with subFrame
     y, x = indices((data.shape))

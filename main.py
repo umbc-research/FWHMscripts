@@ -24,7 +24,7 @@ OVERALL TODOS:
   - Debug charts with curves displayed as well as original data
   - Find a  way to extract bounds from the FITS file or make reasonable guesses
     Roy suggests supplying the function with bounds based on FITS data/physical constraints of our detectors    
-
+  -Build 2d gaussian curve
 """
 
 fits_filename=None
@@ -87,7 +87,7 @@ if __name__ == '__main__':
   radial_profile = np.concatenate((radial_data_raw[::-1], radial_data_raw))
   
   ##Extract Horizontal Data
-  horiz_profile = subFrame[sF_length,:]
+  horiz_data = subFrame[sF_length,:]
 
   ##Extract Vertical Data
   verti_data = subFrame[:,sF_length]
@@ -97,7 +97,7 @@ if __name__ == '__main__':
 
   radialParams = pffit.fit_gaussian_1d(x_data,radial_profile)
 
-  horizParams = pffit.fit_gaussian_1d(x_data,horiz_profile)
+  horizParams = pffit.fit_gaussian_1d(x_data,horiz_data)
 
   vertiParams = pffit.fit_gaussian_1d(x_data,verti_data)
 
@@ -108,10 +108,32 @@ if __name__ == '__main__':
 
   print(radFWHM, horizFWHM, vertiFWHM)
   
-  #display charts of data when in debug mode
-  if debugCheck:
-    
-    pass
 
   ####Generate Plots, if desired
 
+  if debugCheck:
+    fig,charts =plt.subplots(2,2)
+    
+    charts[0,0].plot(x_data,horiz_data, 'ko', markersize=2)
+    charts[0,0].plot(x_data,pffit.gaussian_1d(x_data,horizParams[0],horizParams[1],horizParams[2],horizParams[3]),'tab:blue', linestyle='dashed',)
+    charts[0,0].set_title("Horizontal Fit")
+    charts[0,0].set(xlabel='Pixel in Subfrane',ylabel='Intensity')
+
+    charts[0,1].plot(x_data,verti_data, 'ko', markersize=2)
+    charts[0,1].plot(x_data,pffit.gaussian_1d(x_data,vertiParams[0],vertiParams[1],vertiParams[2],vertiParams[3]),'tab:red', linestyle='dashed',)
+    charts[0,1].set_title("Vertical Fit")
+    charts[0,1].set(xlabel='Pixel in Subfrane',ylabel='Intensity')
+    
+    charts[1,0].plot(x_data,x_data,"tab:purple")
+    charts[1,0].set_title("2d Fit")
+    charts[1,0].set(xlabel='Pixel in Subfrane',ylabel='Intensity')
+    
+    charts[1,1].plot(x_data,radial_profile, 'ko', markersize=2)
+    charts[1,1].plot(x_data,pffit.gaussian_1d(x_data,radialParams[0],radialParams[1],radialParams[2],radialParams[3]),'tab:purple', linestyle='dashed')
+    charts[1,1].set_title("Radial Fit")
+    charts[1,1].set(xlabel='Pixel in Subfrane',ylabel='Intensity')
+    
+    plt.xlabel("Pixel in Subframe")
+    plt.ylabel("Intensity")
+    plt.suptitle("FWHM Curve Fitting")
+    plt.show()
