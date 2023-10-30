@@ -24,11 +24,12 @@ OVERALL TODOS:
   - Debug charts with curves displayed as well as original data
   - Find a  way to extract bounds from the FITS file or make reasonable guesses
     Roy suggests supplying the function with bounds based on FITS data/physical constraints of our detectors    
-     
+
 """
 
 fits_filename=None
 hdul=None
+debugCheck=None
 
 #function to load in fits data
 def loadFits(fits_filename):
@@ -37,6 +38,9 @@ def loadFits(fits_filename):
 #function to calculate FWHM for a profile fit, returns float value(may change this) of the FWHM data 
 #returns value in arcseconds, not pixels
 
+
+
+#takes in file path, and string, checks if string is debug
 if __name__ == '__main__':
   print("work in progress as of 10/23, contact Olivia Chiarini (c241@umbc.edu) with questions")
 
@@ -45,11 +49,15 @@ if __name__ == '__main__':
   except IndexError:
     print("No file path provided as argument to python script.\nExiting")
     exit(0)
-
+  try:
+    debugCheck=(argv[2]=="debug")
+    print("Running in debug mode")
+  except:
+    pass
   ####Setting size of subFrames
   # leave as int!
   sF_length = 50
-  
+ 
   hdul = loadFits(fits_filename)
 
   #Assumed to be in um
@@ -99,6 +107,11 @@ if __name__ == '__main__':
   vertiFWHM = 2.355*vertiParams[1] * 0.0317 * pixSize
 
   print(radFWHM, horizFWHM, vertiFWHM)
+  
+  #display charts of data when in debug mode
+  if debugCheck:
+    
+    pass
 
   ####Generate Plots, if desired
 
