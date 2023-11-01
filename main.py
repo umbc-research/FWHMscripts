@@ -49,11 +49,13 @@ if __name__ == '__main__':
   except IndexError:
     print("No file path provided as argument to python script.\nExiting")
     exit(0)
+
   try:
     debugCheck=(argv[2]=="debug")
     print("Running in debug mode")
   except:
     pass
+
   ####Setting size of subFrames
   # leave as int!
   sF_length = 50
@@ -106,9 +108,8 @@ if __name__ == '__main__':
   horizFWHM = 2.355*horizParams[1] * 0.0317 * pixSize
   vertiFWHM = 2.355*vertiParams[1] * 0.0317 * pixSize
 
-  print(radFWHM, horizFWHM, vertiFWHM)
+  print(f"Radial FWHM: {radFWHM}\nHorizontal FWHM: {horizFWHM}\nVertical FWHM: {vertiFWHM}")
   
-
   ####Generate Plots, if desired
 
   if debugCheck:
@@ -136,4 +137,10 @@ if __name__ == '__main__':
     plt.xlabel("Pixel in Subframe")
     plt.ylabel("Intensity")
     plt.suptitle("FWHM Curve Fitting")
+    plt.show()
+
+    plt.plot(x_data, horiz_data - pffit.gaussian_1d(x_data,horizParams[0],horizParams[1],horizParams[2],horizParams[3]), 'b')
+    plt.plot(x_data, verti_data - pffit.gaussian_1d(x_data,vertiParams[0],vertiParams[1],vertiParams[2],vertiParams[3]), 'r')
+    plt.plot(x_data, radial_profile - pffit.gaussian_1d(x_data,radialParams[0],radialParams[1],radialParams[2],radialParams[3]), 'm')
+    plt.grid(1)
     plt.show()
