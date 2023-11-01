@@ -24,12 +24,10 @@ OVERALL TODOS:
   - Debug charts with curves displayed as well as original data
   - Find a  way to extract bounds from the FITS file or make reasonable guesses
     Roy suggests supplying the function with bounds based on FITS data/physical constraints of our detectors    
-  -Build 2d gaussian curve
 """
 
 fits_filename=None
 hdul=None
-debugCheck=None
 
 #function to load in fits data
 def loadFits(fits_filename):
@@ -98,49 +96,50 @@ if __name__ == '__main__':
   x_data = np.linspace(0, sF_length*2, sF_length*2)
 
   radialParams = pffit.fit_gaussian_1d(x_data,radial_profile)
-
   horizParams = pffit.fit_gaussian_1d(x_data,horiz_data)
-
   vertiParams = pffit.fit_gaussian_1d(x_data,verti_data)
+
+  ##Calculate Residuals
+  ## SQRT( SUM( SQUARED_DIFFERENCES  ) ) / numDataPts
+  radialResidual = np.sqrt( sum( ((pffit.gaussian_1d(x_data, *radialParams) - radial_profile)) **2 ) ) / (2*sF_length)
+  horizResidual  = np.sqrt( sum( ((pffit.gaussian_1d(x_data, *horizParams) - horiz_data)) **2 ) )      / (2*sF_length)
+  vertiResidual  = np.sqrt( sum( ((pffit.gaussian_1d(x_data, *radialParams) - verti_data)) **2 ) )     / (2*sF_length)
+
+  print(f"Fits completed with the following residuals\nRadial: {radialResidual:0.3f}\nHorizontal: {horizResidual:0.3f}\nVertical: {vertiResidual:0.3f}\n")
 
   ####Convert the STD to FWHM and convert to " (arcsec) based on FITS header
   radFWHM = 2.355*radialParams[1] * 0.0317 * pixSize
   horizFWHM = 2.355*horizParams[1] * 0.0317 * pixSize
   vertiFWHM = 2.355*vertiParams[1] * 0.0317 * pixSize
 
-  print(f"Radial FWHM: {radFWHM}\nHorizontal FWHM: {horizFWHM}\nVertical FWHM: {vertiFWHM}")
+  print(f"Radial FWHM: {radFWHM:0.3f}\nHorizontal FWHM: {horizFWHM:0.3f}\nVertical FWHM: {vertiFWHM:0.3f}")
   
-  ####Generate Plots, if desired
+  ####Generate Plots
 
-  if debugCheck:
-    fig,charts =plt.subplots(2,2)
-    
-    charts[0,0].plot(x_data,horiz_data, 'ko', markersize=2)
-    charts[0,0].plot(x_data,pffit.gaussian_1d(x_data,horizParams[0],horizParams[1],horizParams[2],horizParams[3]),'tab:blue', linestyle='dashed',)
-    charts[0,0].set_title("Horizontal Fit")
-    charts[0,0].set(xlabel='Pixel in Subfrane',ylabel='Intensity')
+  fig,charts =plt.subplots(2,2, figsize=(10,8))
+  
+  charts[0,0].plot(x_data,horiz_data, 'ko', markersize=2)
+  charts[0,0].plot(x_data,pffit.gaussian_1d(x_data,horizParams[0],horizParams[1],horizParams[2],horizParams[3]),'tab:blue', linestyle='dashed',)
+  charts[0,0].set_title("Horizontal Fit")
+  charts[0,0].set(xlabel='Pixel in SubFrame',ylabel='Counts')
+  charts[0,0].grid(1)
 
-    charts[0,1].plot(x_data,verti_data, 'ko', markersize=2)
-    charts[0,1].plot(x_data,pffit.gaussian_1d(x_data,vertiParams[0],vertiParams[1],vertiParams[2],vertiParams[3]),'tab:red', linestyle='dashed',)
-    charts[0,1].set_title("Vertical Fit")
-    charts[0,1].set(xlabel='Pixel in Subfrane',ylabel='Intensity')
-    
-    charts[1,0].plot(x_data,x_data,"tab:purple")
-    charts[1,0].set_title("2d Fit")
-    charts[1,0].set(xlabel='Pixel in Subfrane',ylabel='Intensity')
-    
-    charts[1,1].plot(x_data,radial_profile, 'ko', markersize=2)
-    charts[1,1].plot(x_data,pffit.gaussian_1d(x_data,radialParams[0],radialParams[1],radialParams[2],radialParams[3]),'tab:purple', linestyle='dashed')
-    charts[1,1].set_title("Radial Fit")
-    charts[1,1].set(xlabel='Pixel in Subfrane',ylabel='Intensity')
-    
-    plt.xlabel("Pixel in Subframe")
-    plt.ylabel("Intensity")
-    plt.suptitle("FWHM Curve Fitting")
-    plt.show()
+  charts[0,1].plot(x_data,verti_data, 'ko', markersize=2)
+  charts[0,1].plot(x_data,pffit.gaussian_1d(x_data,vertiParams[0],vertiParams[1],vertiParams[2],vertiParams[3]),'tab:red', linestyle='dashed',)
+  charts[0,1].set_title("Vertical Fit")
+  charts[0,1].set(xlabel='Pixel in SubFrame',ylabel='Counts')
+  charts[0,1].grid(1)
 
-    plt.plot(x_data, horiz_data - pffit.gaussian_1d(x_data,horizParams[0],horizParams[1],horizParams[2],horizParams[3]), 'b')
-    plt.plot(x_data, verti_data - pffit.gaussian_1d(x_data,vertiParams[0],vertiParams[1],vertiParams[2],vertiParams[3]), 'r')
-    plt.plot(x_data, radial_profile - pffit.gaussian_1d(x_data,radialParams[0],radialParams[1],radialParams[2],radialParams[3]), 'm')
-    plt.grid(1)
-    plt.show()
+  charts[1,0].plot(x_data,radial_profile, 'ko', markersize=2)
+  charts[1,0].plot(x_data,pffit.gaussian_1d(x_data,radialParams[0],radialParams[1],radialParams[2],radialParams[3]),'tab:purple', linestyle='dashed')
+  charts[1,0].set_title("Radial Fit")
+  charts[1,0].set(xlabel='Pixel in SubFrame',ylabel='Counts')
+  charts[1,0].grid(1)
+
+  charts[1,1].imshow(subFrame, cmap='gray')
+  charts[1,1].plot(sF_length,sF_length, 'rx')
+  charts[1,1].set_title("Source SubFrame")
+
+  plt.suptitle("FWHM Curve Fitting")
+  plt.tight_layout()
+  plt.show()
