@@ -23,7 +23,8 @@ OVERALL TODOS:
       config file?
   - Debug charts with curves displayed as well as original data
   - Find a  way to extract bounds from the FITS file or make reasonable guesses
-    Roy suggests supplying the function with bounds based on FITS data/physical constraints of our detectors    
+    Roy suggests supplying the function with bounds based on FITS data/physical constraints of our detectors
+  - Work on dumping all findings and necessary info for reproducing to a log file. Save figure, too.  
 """
 
 fits_filename=None
