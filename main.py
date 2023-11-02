@@ -175,6 +175,6 @@ if __name__ == '__main__':
     charts[1,1].plot(sF_length,sF_length, 'rx')
     charts[1,1].set_title("Source SubFrame")
 
-    plt.suptitle(f"FWHM Curve Fitting for Source ID: {sourceID}")
+    plt.suptitle(f"FWHM Curve Fitting for Source ID: {sourceID}\n{basename(fits_filename)}")
     plt.tight_layout()
     plt.savefig("{}_{}.png".format('.'.join(basename(fits_filename).split('.'))[:-1], sourceID))
