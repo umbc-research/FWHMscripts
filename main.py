@@ -1,14 +1,17 @@
 import scipy
 import numpy as np
 
+
+
+from ntpath import basename as basename
+
 import astropy
 from astropy.io import fits
 from photutils.detection import DAOStarFinder,IRAFStarFinder
-
 from pathlib import Path
-
 from matplotlib import pyplot as plt
 from sys import argv
+
 
 #Author-defined pckgs
 import profileFitting as pffit
@@ -49,11 +52,7 @@ if __name__ == '__main__':
   except IndexError:
     print("No file path provided as argument to python script.\nExiting")
     exit(0)
-  try:
-    debugCheck=(argv[2]=="debug")
-    print("Running in debug mode")
-  except:
-    pass
+
   ####Setting size of subFrames
   # leave as int!
   sF_length = 50
@@ -84,7 +83,7 @@ if __name__ == '__main__':
   ##Extract Radial Profile Data
   # Assuming subFrame is square
   radial_data_raw = pffit.extract_radial_data(subFrame, xC=sF_length, yC=sF_length)[:sF_length]
-  radial_profile = np.concatenate((radial_data_raw[::-1], radial_data_raw))
+  radial_data = np.concatenate((radial_data_raw[::-1], radial_data_raw))
   
   ##Extract Horizontal Data
   horiz_data = subFrame[sF_length,:]
@@ -95,45 +94,69 @@ if __name__ == '__main__':
   ####Perform Fits
   x_data = np.linspace(0, sF_length*2, sF_length*2)
 
-  radialParams = pffit.fit_gaussian_1d(x_data,radial_profile)
+  radialParams = pffit.fit_gaussian_1d(x_data,radial_data)
 
   horizParams = pffit.fit_gaussian_1d(x_data,horiz_data)
 
   vertiParams = pffit.fit_gaussian_1d(x_data,verti_data)
 
   ####Convert the STD to FWHM and convert to " (arcsec) based on FITS header
-  radFWHM = 2.355*radialParams[1] * 0.0317 * pixSize
+  radialFWHM = 2.355*radialParams[1] * 0.0317 * pixSize
   horizFWHM = 2.355*horizParams[1] * 0.0317 * pixSize
   vertiFWHM = 2.355*vertiParams[1] * 0.0317 * pixSize
 
-  print(radFWHM, horizFWHM, vertiFWHM)
+  print(radialFWHM, horizFWHM, vertiFWHM)
   
 
-  ####Generate Plots, if desired
+  ####Generate Fits
+  horiz_fit=pffit.gaussian_1d(x_data,horizParams[0],horizParams[1],horizParams[2],horizParams[3])
+  verti_fit=pffit.gaussian_1d(x_data,vertiParams[0],vertiParams[1],vertiParams[2],vertiParams[3])
+  radial_fit=pffit.gaussian_1d(x_data,radialParams[0],radialParams[1],radialParams[2],radialParams[3])
 
-  if debugCheck:
-    fig,charts =plt.subplots(2,2)
-    
-    charts[0,0].plot(x_data,horiz_data, 'ko', markersize=2)
-    charts[0,0].plot(x_data,pffit.gaussian_1d(x_data,horizParams[0],horizParams[1],horizParams[2],horizParams[3]),'tab:blue', linestyle='dashed',)
-    charts[0,0].set_title("Horizontal Fit")
-    charts[0,0].set(xlabel='Pixel in Subfrane',ylabel='Intensity')
 
-    charts[0,1].plot(x_data,verti_data, 'ko', markersize=2)
-    charts[0,1].plot(x_data,pffit.gaussian_1d(x_data,vertiParams[0],vertiParams[1],vertiParams[2],vertiParams[3]),'tab:red', linestyle='dashed',)
-    charts[0,1].set_title("Vertical Fit")
-    charts[0,1].set(xlabel='Pixel in Subfrane',ylabel='Intensity')
+  ####Generate Residual Errors
+  horiz_residuals=horiz_fit-horiz_data
+  verti_residuals=verti_fit-verti_data
+  radial_residuals=radial_fit-radial_data
+  verti_avgRes = np.average( np.absolute(verti_residuals))
+  horiz_avgRes=np.average(np.absolute(horiz_residuals))
+  radial_avgRes=np.average(np.absolute(radial_residuals))
+
+  ####Output calculated data to log
+  with  open('output-log.txt', 'a') as log_file:
+    log_file.write(f"{basename(fits_filename)}: Horizontal FWHM:{horizFWHM}\t Avg Horizontal Residuals:{horiz_avgRes}\t Vertical FWHM:{vertiFWHM} \t Avg Vertical Residuals:{verti_avgRes} \tRadial FWHM:{radialFWHM} \t Avg Radial Residuals:{radial_avgRes}\n")
+
+
+
+  ####Generate Plots
+
+  fig,charts =plt.subplots(2,2)
     
-    charts[1,0].plot(x_data,x_data,"tab:purple")
-    charts[1,0].set_title("2d Fit")
-    charts[1,0].set(xlabel='Pixel in Subfrane',ylabel='Intensity')
+  charts[0,0].plot(x_data,horiz_data, 'ko', markersize=2)
+  charts[0,0].plot(x_data,horiz_fit,'tab:blue', linestyle='dashed',)
+  charts[0,0].set_title("Horizontal Fit")
+  charts[0,0].set(xlabel='Pixel in Subfrane',ylabel='Intensity')
+
+  charts[0,1].plot(x_data,verti_data, 'ko', markersize=2)
+  charts[0,1].plot(x_data,verti_fit,'tab:red', linestyle='dashed',)
+  charts[0,1].set_title("Vertical Fit")
+  charts[0,1].set(xlabel='Pixel in Subfrane',ylabel='Intensity')
     
-    charts[1,1].plot(x_data,radial_profile, 'ko', markersize=2)
-    charts[1,1].plot(x_data,pffit.gaussian_1d(x_data,radialParams[0],radialParams[1],radialParams[2],radialParams[3]),'tab:purple', linestyle='dashed')
-    charts[1,1].set_title("Radial Fit")
-    charts[1,1].set(xlabel='Pixel in Subfrane',ylabel='Intensity')
+  charts[1,0].plot(x_data,radial_data, 'ko', markersize=2)
+  charts[1,0].plot(x_data,radial_fit,'tab:purple', linestyle='dashed')
+  charts[1,0].set_title("Radial Fit")
+  charts[1,0].set(xlabel='Pixel in Subfrane',ylabel='Intensity')
     
-    plt.xlabel("Pixel in Subframe")
-    plt.ylabel("Intensity")
-    plt.suptitle("FWHM Curve Fitting")
-    plt.show()
+
+
+  charts[1,1].plot(x_data,horiz_residuals,'o', color='tab:blue', label='Horizontal Residual')
+  charts[1,1].plot(x_data, verti_residuals,'o',color='tab:red',label='Vertical Residual')
+  charts[1,1].plot(x_data, radial_residuals,'o', color='tab:purple',label='Radial Residual')
+  charts[1,1].set_title("Residual Errors")
+  charts[1,1].set(xlabel='Pixel in Subfrane',ylabel='Intensity minus Fit')
+  charts[1,1].legend()
+
+  plt.xlabel("Pixel in Subframe")
+  plt.ylabel("Intensity")
+  plt.suptitle("FWHM Curve Fitting")
+  plt.show()

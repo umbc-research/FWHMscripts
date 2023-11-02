@@ -1,0 +1,9 @@
+test 
+test 
+/home/neutron/Documents/spacestuff/fwhm-research-git/FWHMscripts/fitsfiles/theta_herc_00001.fits, Horizontal FWHM:6.16483124782978, Vertical FWHM:4.45250353871441 Radial FWHM:5.262080611660813 
+/home/neutron/Documents/spacestuff/fwhm-research-git/FWHMscripts/fitsfiles/theta_herc_00001.fits, Horizontal FWHM:6.16483124782978, Vertical FWHM:4.45250353871441 Radial FWHM:5.262080611660813 
+theta_herc_00001.fits, Horizontal FWHM:6.16483124782978, Vertical FWHM:4.45250353871441 Radial FWHM:5.262080611660813 
+theta_herc_00001.fits, Horizontal FWHM:6.16483124782978, Vertical FWHM:4.45250353871441 Radial FWHM:5.262080611660813 
+theta_herc_00001.fits, Horizontal FWHM:6.16483124782978, Vertical FWHM:4.45250353871441 Radial FWHM:5.262080611660813 
+theta_herc_00001.fits: Horizontal FWHM:6.16483124782978	 Avg Horizontal Residuals:938.9388493693742	 Vertical FWHM:4.45250353871441 	 Avg Vertical Residuals:399.80551249188807 	Radial FWHM:5.262080611660813 	 Avg Radial Residuals:294.7525435714846
+theta_herc_00001.fits: Horizontal FWHM:6.16483124782978	 Avg Horizontal Residuals:938.9388493693742	 Vertical FWHM:4.45250353871441 	 Avg Vertical Residuals:399.80551249188807 	Radial FWHM:5.262080611660813 	 Avg Radial Residuals:294.7525435714846
