@@ -85,7 +85,7 @@ if __name__ == '__main__':
   ##Extract Radial Profile Data
   # Assuming subFrame is square
   radial_data_raw = pffit.extract_radial_data(subFrame, xC=sF_length, yC=sF_length)[:sF_length]
-  radial_profile = np.concatenate((radial_data_raw[::-1], radial_data_raw))
+  radial_data = np.concatenate((radial_data_raw[::-1], radial_data_raw))
   
   ##Extract Horizontal Data
   horiz_data = subFrame[sF_length,:]
@@ -96,13 +96,14 @@ if __name__ == '__main__':
   ####Perform Fits
   x_data = np.linspace(0, sF_length*2, sF_length*2)
 
-  radialParams = pffit.fit_gaussian_1d(x_data,radial_profile)
+  radialParams = pffit.fit_gaussian_1d(x_data,radial_data)
   horizParams = pffit.fit_gaussian_1d(x_data,horiz_data)
   vertiParams = pffit.fit_gaussian_1d(x_data,verti_data)
 
+
   ##Calculate Residuals
   ## SQRT( SUM( SQUARED_DIFFERENCES  ) ) / numDataPts
-  radialResidual = np.sqrt( sum( ((pffit.gaussian_1d(x_data, *radialParams) - radial_profile)) **2 ) ) / (2*sF_length)
+  radialResidual = np.sqrt( sum( ((pffit.gaussian_1d(x_data, *radialParams) - radial_data)) **2 ) ) / (2*sF_length)
   horizResidual  = np.sqrt( sum( ((pffit.gaussian_1d(x_data, *horizParams) - horiz_data)) **2 ) )      / (2*sF_length)
   vertiResidual  = np.sqrt( sum( ((pffit.gaussian_1d(x_data, *radialParams) - verti_data)) **2 ) )     / (2*sF_length)
 
@@ -131,7 +132,7 @@ if __name__ == '__main__':
   charts[0,1].set(xlabel='Pixel in SubFrame',ylabel='Counts')
   charts[0,1].grid(1)
 
-  charts[1,0].plot(x_data,radial_profile, 'ko', markersize=2)
+  charts[1,0].plot(x_data,radial_data, 'ko', markersize=2)
   charts[1,0].plot(x_data,pffit.gaussian_1d(x_data,radialParams[0],radialParams[1],radialParams[2],radialParams[3]),'tab:purple', linestyle='dashed')
   charts[1,0].set_title("Radial Fit")
   charts[1,0].set(xlabel='Pixel in SubFrame',ylabel='Counts')
