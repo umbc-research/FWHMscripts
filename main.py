@@ -100,19 +100,23 @@ if __name__ == '__main__':
   horizParams = pffit.fit_gaussian_1d(x_data,horiz_data)
   vertiParams = pffit.fit_gaussian_1d(x_data,verti_data)
 
+  #####Get Fitted Profiles
+  radial_fit = pffit.gaussian_1d(x_data, *radialParams)
+  horiz_fit  = pffit.gaussian_1d(x_data, *horizParams)
+  verti_fit  = pffit.gaussian_1d(x_data, *vertiParams)
 
   ##Calculate Residuals
   ## SQRT( SUM( SQUARED_DIFFERENCES  ) ) / numDataPts
-  radialResidual = np.sqrt( sum( ((pffit.gaussian_1d(x_data, *radialParams) - radial_data)) **2 ) ) / (2*sF_length)
-  horizResidual  = np.sqrt( sum( ((pffit.gaussian_1d(x_data, *horizParams) - horiz_data)) **2 ) )      / (2*sF_length)
-  vertiResidual  = np.sqrt( sum( ((pffit.gaussian_1d(x_data, *radialParams) - verti_data)) **2 ) )     / (2*sF_length)
+  radialResidual = np.sqrt( sum( (radial_fit - radial_data) **2 ) ) / (2*sF_length)
+  horizResidual  = np.sqrt( sum( (horiz_fit  - horiz_data)  **2 ) ) / (2*sF_length)
+  vertiResidual  = np.sqrt( sum( (verti_fit  - verti_data)  **2 ) ) / (2*sF_length)
 
   print(f"Fits completed with the following residuals\nRadial: {radialResidual:0.3f}\nHorizontal: {horizResidual:0.3f}\nVertical: {vertiResidual:0.3f}\n")
 
   ####Convert the STD to FWHM and convert to " (arcsec) based on FITS header
-  radFWHM = 2.355*radialParams[1] * 0.0317 * pixSize
-  horizFWHM = 2.355*horizParams[1] * 0.0317 * pixSize
-  vertiFWHM = 2.355*vertiParams[1] * 0.0317 * pixSize
+  radFWHM   = 2.355*radialParams[1] * 0.0317 * pixSize
+  horizFWHM = 2.355*horizParams[1]  * 0.0317 * pixSize
+  vertiFWHM = 2.355*vertiParams[1]  * 0.0317 * pixSize
 
   print(f"Radial FWHM: {radFWHM:0.3f}\nHorizontal FWHM: {horizFWHM:0.3f}\nVertical FWHM: {vertiFWHM:0.3f}")
   
@@ -120,20 +124,20 @@ if __name__ == '__main__':
 
   fig,charts =plt.subplots(2,2, figsize=(10,8))
   
-  charts[0,0].plot(x_data,horiz_data, 'ko', markersize=2)
-  charts[0,0].plot(x_data,pffit.gaussian_1d(x_data,horizParams[0],horizParams[1],horizParams[2],horizParams[3]),'tab:blue', linestyle='dashed',)
+  charts[0,0].plot(x_data, horiz_data, 'ko', markersize=2)
+  charts[0,0].plot(x_data, horiz_fit,'tab:blue', linestyle='dashed',)
   charts[0,0].set_title("Horizontal Fit")
   charts[0,0].set(xlabel='Pixel in SubFrame',ylabel='Counts')
   charts[0,0].grid(1)
 
-  charts[0,1].plot(x_data,verti_data, 'ko', markersize=2)
-  charts[0,1].plot(x_data,pffit.gaussian_1d(x_data,vertiParams[0],vertiParams[1],vertiParams[2],vertiParams[3]),'tab:red', linestyle='dashed',)
+  charts[0,1].plot(x_data, verti_data, 'ko', markersize=2)
+  charts[0,1].plot(x_data, verti_fit,'tab:red', linestyle='dashed',)
   charts[0,1].set_title("Vertical Fit")
   charts[0,1].set(xlabel='Pixel in SubFrame',ylabel='Counts')
   charts[0,1].grid(1)
 
   charts[1,0].plot(x_data,radial_data, 'ko', markersize=2)
-  charts[1,0].plot(x_data,pffit.gaussian_1d(x_data,radialParams[0],radialParams[1],radialParams[2],radialParams[3]),'tab:purple', linestyle='dashed')
+  charts[1,0].plot(x_data,radial_fit,'tab:purple', linestyle='dashed')
   charts[1,0].set_title("Radial Fit")
   charts[1,0].set(xlabel='Pixel in SubFrame',ylabel='Counts')
   charts[1,0].grid(1)
