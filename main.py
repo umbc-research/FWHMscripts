@@ -35,9 +35,7 @@ def loadFits(inputPath):
   return fits.open(f'{inputPath}')[0]
 
 #takes in file path or directory
-if __name__ == '__main__':
-  print("work in progress as of 10/23, contact Olivia Chiarini (c241@umbc.edu) with questions")
-  
+if __name__ == '__main__': 
   try:
     inputPath = argv[1]
   except IndexError:
