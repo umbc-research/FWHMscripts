@@ -1,7 +1,6 @@
 import scipy
 import numpy as np
-
-
+import os.path
 
 from ntpath import basename as basename
 
@@ -59,22 +58,24 @@ if __name__ == '__main__':
   sfLength = 50
   
 
-  directoryFits=None
+  directoryFits=[]
 
   if inputPath.endswith(".fits") or inputPath.endswith(".fit"):
     print("single file")
-    directoryFits=[loadFits(inputPath)]
+    directoryFits.append(loadFits(inputPath))
+    inputPath=os.path.dirname(inputPath)
   else:
     #store all fits file paths within directory in array directory_fits   
     print("directory")
-    directoryFits=loadFits(inputPath)
+    for fitsFile in os.listdir(inputPath):
+      if(fitsFile.endswith(".fits") or fitsFile.endswith(".fit")):
+        directoryFits.append(fitsFile)
 
 
+  for fitsFile in directoryFits:
     
-  
 
-  for hdul in directoryFits:
-    
+    hdul=loadFits(inputPath+"/"+fitsFile)
     #Assumed to be in um
     pixSize = float(hdul.header['XPIXSZ'])
 
@@ -134,11 +135,11 @@ if __name__ == '__main__':
       horizFWHM = 2.355*horizParams[1]  * 0.0317 * pixSize
       vertiFWHM = 2.355*vertiParams[1]  * 0.0317 * pixSize
 
-      print(f"Fits completed with the following residuals\nRadial: {radialResidual:0.3f}\nHorizontal: {horizResidual:0.3f}\nVertical: {vertiResidual:0.3f}\n")
+      print(f"Fits completed with the following residuals for {fitsFile}\nRadial: {radialResidual:0.3f}\nHorizontal: {horizResidual:0.3f}\nVertical: {vertiResidual:0.3f}\n")
       print(f"Radial FWHM: {radFWHM:0.3f}\nHorizontal FWHM: {horizFWHM:0.3f}\nVertical FWHM: {vertiFWHM:0.3f}")
 
       ####Generate Log
-      with open("output-log.txt", "a") as f:
+      with open(inputPath+"/FWHMscript-output-log.txt", "a") as f:
         #Add data block line break
         f.write("========================================\n")
 
@@ -147,7 +148,7 @@ if __name__ == '__main__':
 
         #File Name
         #TODO: get filename from array somehow?
-        #f.write(f"File Name: {basename(inputPath)}\n")
+        f.write(f"File Name: {basename(fitsFile)} \n ")
 
         #Observation Time
         f.write(f"Obs Start Time: {hdul.header['DATE-OBS']}\n")
@@ -157,13 +158,13 @@ if __name__ == '__main__':
 
         #Per type of profile
         ##Write all HORIZONTAL fit parameters with residuals and FWHM
-        f.write(f"Horizontal Fit\nmu:\t\t\t{horizParams[0]}\nsigma:\t\t{horizParams[1]}\namplitude:\t{horizParams[2]}\n"+\
+        f.write(f"Horizontal Fit\nmu:\t\t{horizParams[0]}\nsigma:\t\t{horizParams[1]}\namplitude:\t{horizParams[2]}\n"+\
                 f"offset:\t\t{horizParams[3]}\nResidual:\t{horizResidual}\nFWHM:\t\t{horizFWHM}\n")
         ##Write all VERTICAL fit parameters with residuals and FWHM
-        f.write(f"Vertical Fit\nmu:\t\t\t{vertiParams[0]}\nsigma:\t\t{vertiParams[1]}\namplitude:\t{vertiParams[2]}\n"+\
+        f.write(f"Vertical Fit\nmu:\t\t{vertiParams[0]}\nsigma:\t\t{vertiParams[1]}\namplitude:\t{vertiParams[2]}\n"+\
                 f"offset:\t\t{vertiParams[3]}\nResidual:\t{vertiResidual}\nFWHM:\t\t{vertiFWHM}\n")
         ##Write all RADIAL fit parameters with residuals and FWHM
-        f.write(f"Radial Fit\nmu:\t\t\t{radialParams[0]}\nsigma:\t\t{radialParams[1]}\namplitude:\t{radialParams[2]}\n"+\
+        f.write(f"Radial Fit\nmu:\t\t{radialParams[0]}\nsigma:\t\t{radialParams[1]}\namplitude:\t{radialParams[2]}\n"+\
                 f"offset:\t\t{radialParams[3]}\nResidual:\t{radialResidual}\nFWHM:\t\t{radFWHM}\n")
 
 
@@ -192,6 +193,6 @@ if __name__ == '__main__':
       charts[1,1].plot(sfLength,sfLength, 'rx')
       charts[1,1].set_title("Source SubFrame")
 
-      plt.suptitle(f"FWHM Curve Fitting for Source ID: {sourceID}\n{basename(inputPath)}")
+      plt.suptitle(f"FWHM Curve Fitting for Source ID: {sourceID}\n{fitsFile}")
       plt.tight_layout()
-      plt.savefig("{}_{}.png".format('.'.join(basename(inputPath).split('.'))[:-1], sourceID))
+      plt.savefig("{}{}_{}.png".format(inputPath,fitsFile[:-5], sourceID))
