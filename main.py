@@ -140,7 +140,12 @@ if __name__ == '__main__':
         f.write(f"File Name: {basename(fitsFile)} \n ")
 
         #Observation Time
-        f.write(f"Obs Start Time: {hdul.header['DATE-OBS']}\n")
+        datePart, timePart = hdul.header['DATE-OBS'].split("T")
+        year, month, day = datePart.split("-")
+        hour, minute = timePart.split(":")[:2]
+        obsTime=f"{year}{month}{day}T{hour}{minute}"
+        
+        f.write(f"Obs Start Time: {obsTime}\n")
 
         #Camera used (with pixel size)
         f.write(f"Camera Used (pixel size): {hdul.header['INSTRUME']} ({hdul.header['XPIXSZ']}(um))\n")
@@ -188,4 +193,4 @@ if __name__ == '__main__':
 
       plt.suptitle(f"FWHM Curve Fitting for Source ID: {sourceID}\n{fitsFile}")
       plt.tight_layout()
-      plt.savefig("{}{}_{}.png".format(inputPath,fitsFile[:-5], sourceID))
+      plt.savefig("{}/{}_{}.png".format(inputPath,fitsFile[:-5], sourceID))
