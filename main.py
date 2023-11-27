@@ -140,10 +140,15 @@ if __name__ == '__main__':
         f.write(f"File Name: {basename(fitsFile)} \n ")
 
         #Observation Time
-        datePart, timePart = hdul.header['DATE-OBS'].split("T")
-        year, month, day = datePart.split("-")
-        hour, minute = timePart.split(":")[:2]
-        obsTime=f"{year}{month}{day}T{hour}{minute}"
+        uselesspart, data = f"{hdul.header['SIMPLE*']}".split("FITS: ")
+        timeInfo, uselesspart2 = data.split("E")
+        
+        datePart=timeInfo[:10]
+        timePart=timeInfo[11:].strip()
+
+        month, day, year = datePart.split("/")
+        hour, minute,second = timePart.split(":")
+        obsTime=f"{year}{month}{day}T{hour}{minute}{second}"
         
         f.write(f"Obs Start Time: {obsTime}\n")
 
