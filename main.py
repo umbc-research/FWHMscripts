@@ -1,8 +1,8 @@
 import scipy
 import numpy as np
-
-
-
+import os.path
+import datetime as datetime
+import csv
 from ntpath import basename as basename
 
 import astropy
@@ -20,166 +20,197 @@ import profileFitting as pffit
 
 """
 OVERALL TODOS:
-  - Design workflow for 'batch' FITS file FWHM identification.
-  - Read in (as command-line-input) the name of a directory and operate on all FITS files within
   - Some of the parameters in starfind should be made to update based on the measures of central tendancy above
   - Adapt source code to work for all sources within some brightness threshold
   - Build in support for changing plate scale (0.0317) for focal lengths
       config file?
-  - Debug charts with curves displayed as well as original data
   - Find a  way to extract bounds from the FITS file or make reasonable guesses
-    Roy suggests supplying the function with bounds based on FITS data/physical constraints of our detectors
-  - Work on dumping all findings and necessary info for reproducing to a log file. Save figure, too.  
+   Roy suggests supplying the function with bounds based on FITS data/physical constraints of our detectors
 """
 
-fits_filename=None
+inputPath=None
 hdul=None
 
 #function to load in fits data
-def loadFits(fits_filename):
-  return fits.open(f'{fits_filename}')[0]
+def loadFits(inputPath):
+  return fits.open(f'{inputPath}')[0]
 
-#function to calculate FWHM for a profile fit, returns float value(may change this) of the FWHM data 
-#returns value in arcseconds, not pixels
-
-#takes in file path, and string, checks if string is debug
-if __name__ == '__main__':
-  print("work in progress as of 10/23, contact Olivia Chiarini (c241@umbc.edu) with questions")
-
+#takes in file path or directory
+if __name__ == '__main__': 
   try:
-    fits_filename = argv[1]
+    inputPath = argv[1]
   except IndexError:
     print("No file path provided as argument to python script.\nExiting")
     exit(0)
 
-  try:
-    debugCheck=(argv[2]=="debug")
-    print("Running in debug mode")
-  except:
-    pass
 
-  ####Setting size of subFrames
-  # leave as int!
-  sF_length = 50
- 
-  hdul = loadFits(fits_filename)
 
-  #Assumed to be in um
-  pixSize = float(hdul.header['XPIXSZ'])
+  
+  #empty list, to be filled with all inputed .fits files
+  directoryFits=[]
 
-  data = hdul.data
+  if inputPath.endswith(".fits") or inputPath.endswith(".fit"):
+    #storing single file, finidng directory for that file
+    directoryFits.append(loadFits(inputPath))
+    inputPath=os.path.dirname(inputPath)
+  else:
+    #storing all fits to be processed
+    for fitsFile in os.listdir(inputPath):
+      if(fitsFile.endswith(".fits") or fitsFile.endswith(".fit")):
+        directoryFits.append(fitsFile)
 
-  ####Find sources
-  mean, median, std, max = np.mean(data), np.median(data), np.std(data), np.max(data)
 
-  starFind = DAOStarFinder(threshold=median, fwhm=20.0, sky=500, exclude_border=True, brightest=10, peakmax=70000)
-  sourcesList = starFind(data)
 
-  #We'd need some logic here to determine which sources are good/bad to try to fit  
 
-  for sourceID in [0]:
+  #setup log
+  fields=['file name','source id','obs time', 'camera used (pixel size)',\
+        'horiztonal mu', 'horiztonal sigma', 'horiztonal amplitude','horiztonal offset',\
+        'horizontal residual', 'horizontal FWHM pixel','horizontal FWHM arcsecond',\
+        'vertical mu', 'vertical  sigma', 'vertical  amplitude','vertical  offset',\
+        'vertical  residual', 'vertical  FWHM pixel','vertical  FWHM arcsecond',\
+        'radial mu', 'radial sigma', 'radial amplitude','radial offset',\
+        'radial residual', 'radial FWHM pixel','radial FWHM arcsecond'\
+                ]
 
-    ####Extract a subframe
-    #Find center of first (brightest) source
-    #  This code is not perfect, but works for a single source (here the 0th)
-    xC, yC = sourcesList[0]['xcentroid'], sourcesList[0]['ycentroid']
 
-    #Slicing (and matrices in general in python) are (row, col)
-    subFrame = data[int(yC - sF_length):int(yC + sF_length),int(xC - sF_length):int(xC + sF_length)]
-    
-    ####Extract profile data (ideally centered on sources)
-    
-    ##Extract Radial Profile Data
-    # Assuming subFrame is square
-    radial_data_raw = pffit.extract_radial_data(subFrame, xC=sF_length, yC=sF_length)[:sF_length]
-    radial_data = np.concatenate((radial_data_raw[::-1], radial_data_raw))
-    
-    ##Extract Horizontal Data
-    horiz_data = subFrame[sF_length,:]
+  dTime=f'{datetime.datetime.now()}'
+  year=f'{dTime[:4]}'
+  month=f'{dTime[5:7]}'
+  day=f'{dTime[8:10]}'
+  hour=f'{dTime[11:13]}'
+  minute=f'{dTime[14:16]}'
+  second=f'{dTime[17:19]}'
+  runTime =f'{year}{month}{day}T{hour}{minute}{second}'
+  with open(f'{inputPath}/FWHMscript-output-log-{runTime}.csv', 'a') as f:
+        writer = csv.writer(f)
+        writer.writerow(fields)
 
-    ##Extract Vertical Data
-    verti_data = subFrame[:,sF_length]
 
-    ####Perform Fits
-    x_data = np.linspace(0, sF_length*2, sF_length*2)
+  #run calculations for every .fits file
+  for fitsFile in directoryFits:
+    ####Setting size of subFrames
+    # leave as int!
+    sfLength = 50
 
-    radialParams = pffit.fit_gaussian_1d(x_data,radial_data)
-    horizParams = pffit.fit_gaussian_1d(x_data,horiz_data)
-    vertiParams = pffit.fit_gaussian_1d(x_data,verti_data)
+    #load in .fits file
+    hdul=loadFits(inputPath+"/"+fitsFile)
 
-    #####Get Fitted Profiles
-    radial_fit = pffit.gaussian_1d(x_data, *radialParams)
-    horiz_fit  = pffit.gaussian_1d(x_data, *horizParams)
-    verti_fit  = pffit.gaussian_1d(x_data, *vertiParams)
+    #Assumed to be in um
+    pixSize = float(hdul.header['XPIXSZ'])
 
-    ##Calculate Residuals
-    ## SQRT( SUM( SQUARED_DIFFERENCES  ) ) / numDataPts
-    radialResidual = np.sqrt( sum( (radial_fit - radial_data) **2 ) ) / (2*sF_length)
-    horizResidual  = np.sqrt( sum( (horiz_fit  - horiz_data)  **2 ) ) / (2*sF_length)
-    vertiResidual  = np.sqrt( sum( (verti_fit  - verti_data)  **2 ) ) / (2*sF_length)
+    data = hdul.data
 
-    ####Convert the STD to FWHM and convert to " (arcsec) based on FITS header
-    radFWHM   = 2.355*radialParams[1] * 0.0317 * pixSize
-    horizFWHM = 2.355*horizParams[1]  * 0.0317 * pixSize
-    vertiFWHM = 2.355*vertiParams[1]  * 0.0317 * pixSize
+    ####Find sources
+    mean, median, std, max = np.mean(data), np.median(data), np.std(data), np.max(data)
 
-    print(f"Fits completed with the following residuals\nRadial: {radialResidual:0.3f}\nHorizontal: {horizResidual:0.3f}\nVertical: {vertiResidual:0.3f}\n")
-    print(f"Radial FWHM: {radFWHM:0.3f}\nHorizontal FWHM: {horizFWHM:0.3f}\nVertical FWHM: {vertiFWHM:0.3f}")
-    
-    ####Generate Log
-    with open("output-log.txt", "a") as f:
-      #Add data block line break
-      f.write("========================================\n")
+    starFind = DAOStarFinder(threshold=median, fwhm=20.0, sky=500, exclude_border=True, brightest=10, peakmax=70000)
+    sourcesList = starFind(data)
+
+    #We'd need some logic here to determine which sources are good/bad to try to fit, for now just does brightest  
+
+    for sourceID in [0]:
+
+      ####Extract a subframe
+      #Find center of first (brightest) source
+      #  This code is not perfect, but works for a single source (here the 0th)
+      xC, yC = sourcesList[0]['xcentroid'], sourcesList[0]['ycentroid']
+
+      #Slicing (and matrices in general in python) are (row, col)
+      subFrame = data[int(yC - sfLength):int(yC + sfLength),int(xC - sfLength):int(xC + sfLength)]
+
+      ####Extract profile data (ideally centered on sources)     
+      ##Extract Horizontal Data
+      horizData = subFrame[sfLength,:]
+
+      ##Extract Vertical Data
+      vertiData = subFrame[:,sfLength]
+
+      ##Extract Radial Profile Data
+      # Assuming subFrame is square
+      radialDataRaw = pffit.extract_radial_data(subFrame, xC=sfLength, yC=sfLength)[:sfLength]
+      radialData = np.concatenate((radialDataRaw[::-1], radialDataRaw))
+
+      ####Perform Fits
+      xData = np.linspace(0, sfLength*2, sfLength*2)
+
+      horizParams = pffit.fit_gaussian_1d(xData,horizData)
+      vertiParams = pffit.fit_gaussian_1d(xData,vertiData)
+      radialParams = pffit.fit_gaussian_1d(xData,radialData)
       
-      #Source ID (internal to this code)
-      f.write(f"Source ID: {sourceID}\n") # Come back to this when loopen
+      #####Get Fitted Profiles
+      horizFit  = pffit.gaussian_1d(xData, *horizParams)
+      vertiFit  = pffit.gaussian_1d(xData, *vertiParams)
+      radialFit = pffit.gaussian_1d(xData, *radialParams)
 
-      #File Name
-      f.write(f"File Name: {basename(fits_filename)}\n")
+      ##Calculate Residuals
+      ## SQRT( SUM( SQUARED_DIFFERENCES  ) ) / numDataPts
+      horizResidual  = np.sqrt( sum( (horizFit  - horizData)  **2 ) ) / (2*sfLength)
+      vertiResidual  = np.sqrt( sum( (vertiFit  - vertiData)  **2 ) ) / (2*sfLength)
+      radialResidual = np.sqrt( sum( (radialFit - radialData) **2 ) ) / (2*sfLength)
+      
+      ####Convert the STD to FWHM and convert to " (arcsec) based on FITS header
+      horizFWHMpix=2.355*horizParams[1]
+      vertiFWHMpix=2.355*vertiParams[1]
+      radialFWHMpix=2.355*radialParams[1]
 
-      #Observation Time
-      f.write(f"Obs Start Time: {hdul.header['DATE-OBS']}\n")
+      horizFWHMarc =  horizFWHMpix * 0.0317 * pixSize
+      vertiFWHMarc =  vertiFWHMpix  * 0.0317 * pixSize
+      radialFWHMarc = radialFWHMpix* 0.0317 * pixSize
+      
+      print(f"Fits completed with the following residuals for {fitsFile}\nHorizontal: {horizResidual:0.3f}\nVertical: {vertiResidual:0.3f}\nRadial: {radialResidual:0.3f}\n")
+      print(f"Horizontal FWHM(arcseconds): {horizFWHMarc:0.3f}\nVertical FWHM(arcseconds): {vertiFWHMarc:0.3f}\nRadial FWHM (arcseconds): {radialFWHMarc:0.3f}\n")
 
-      #Camera used (with pixel size)
-      f.write(f"Camera Used (pixel size): {hdul.header['INSTRUME']} ({hdul.header['XPIXSZ']}(um))\n")
+      ####Generate Log
+      uselesspart, data = f"{hdul.header['SIMPLE*']}".split("FITS: ")
+      timeInfo, uselesspart2 = data.split("E")
+       
+      datePart=timeInfo[:10]
+      timePart=timeInfo[11:].strip()
+      month, day, year = datePart.split("/")
+      hour, minute,second = timePart.split(":")
+      obsTime=f"{year}{month}{day}T{hour}{minute}{second}"
+        
+      data=[f'{basename(fitsFile)}',f'{sourceID}',f'{obsTime}',f'{hdul.header["INSTRUME"]} ({hdul.header["XPIXSZ"]} (um))',\
+        f'{horizParams[0]}', f'{horizParams[1]}',f'{horizParams[2]}',f'{horizParams[3]}',\
+        f'{horizResidual}', f'{horizFWHMarc}', f'{horizFWHMpix}', \
+        f'{vertiParams[0]}', f'{vertiParams[1]}',f'{vertiParams[2]}',f'{vertiParams[3]}',\
+        f'{vertiResidual}', f'{vertiFWHMarc}', f'{vertiFWHMpix}', \
+        f'{radialParams[0]}', f'{radialParams[1]}',f'{radialParams[2]}',f'{radialParams[3]}',\
+        f'{radialResidual}', f'{radialFWHMarc}', f'{radialFWHMpix}']
+      
+      with open(f'{inputPath}/FWHMscript-output-log-{runTime}.csv', 'a') as f:
+        writer = csv.writer(f)
+        writer.writerow(data)
+      
+      ####Generate Plots
+      fig,charts =plt.subplots(2,2, figsize=(10,8))
 
-      #Per type of profile
-      ##Write all HORIZONTAL fit parameters with residuals and FWHM
-      f.write(f"Horizontal Fit\nmu:\t\t\t{horizParams[0]}\nsigma:\t\t{horizParams[1]}\namplitude:\t{horizParams[2]}\n"+\
-              f"offset:\t\t{horizParams[3]}\nResidual:\t{horizResidual}\nFWHM:\t\t{horizFWHM}\n")
-      ##Write all VERTICAL fit parameters with residuals and FWHM
-      f.write(f"Vertical Fit\nmu:\t\t\t{vertiParams[0]}\nsigma:\t\t{vertiParams[1]}\namplitude:\t{vertiParams[2]}\n"+\
-              f"offset:\t\t{vertiParams[3]}\nResidual:\t{vertiResidual}\nFWHM:\t\t{vertiFWHM}\n")
-      ##Write all RADIAL fit parameters with residuals and FWHM
-      f.write(f"Radial Fit\nmu:\t\t\t{radialParams[0]}\nsigma:\t\t{radialParams[1]}\namplitude:\t{radialParams[2]}\n"+\
-              f"offset:\t\t{radialParams[3]}\nResidual:\t{radialResidual}\nFWHM:\t\t{radFWHM}\n")
+      #display horizontal
+      charts[0,0].plot(xData, horizData, 'ko', markersize=2)
+      charts[0,0].plot(xData, horizFit,'tab:blue', linestyle='dashed',)
+      charts[0,0].set_title("Horizontal Fit")
+      charts[0,0].set(xlabel='Pixel in SubFrame',ylabel='Counts')
+      charts[0,0].grid(1)
 
+      #display vertical
+      charts[0,1].plot(xData, vertiData, 'ko', markersize=2)
+      charts[0,1].plot(xData, vertiFit,'tab:red', linestyle='dashed',)
+      charts[0,1].set_title("Vertical Fit")
+      charts[0,1].set(xlabel='Pixel in SubFrame',ylabel='Counts')
+      charts[0,1].grid(1)
 
-    ####Generate Plots
-    fig,charts =plt.subplots(2,2, figsize=(10,8))
-    
-    charts[0,0].plot(x_data, horiz_data, 'ko', markersize=2)
-    charts[0,0].plot(x_data, horiz_fit,'tab:blue', linestyle='dashed',)
-    charts[0,0].set_title("Horizontal Fit")
-    charts[0,0].set(xlabel='Pixel in SubFrame',ylabel='Counts')
-    charts[0,0].grid(1)
+      #display radial
+      charts[1,0].plot(xData,radialData, 'ko', markersize=2)
+      charts[1,0].plot(xData,radialFit,'tab:purple', linestyle='dashed')
+      charts[1,0].set_title("Radial Fit")
+      charts[1,0].set(xlabel='Pixel in SubFrame',ylabel='Counts')
+      charts[1,0].grid(1)
 
-    charts[0,1].plot(x_data, verti_data, 'ko', markersize=2)
-    charts[0,1].plot(x_data, verti_fit,'tab:red', linestyle='dashed',)
-    charts[0,1].set_title("Vertical Fit")
-    charts[0,1].set(xlabel='Pixel in SubFrame',ylabel='Counts')
-    charts[0,1].grid(1)
+      #display subframe
+      charts[1,1].imshow(subFrame, cmap='gray')
+      charts[1,1].plot(sfLength,sfLength, 'rx')
+      charts[1,1].set_title("Source SubFrame")
 
-    charts[1,0].plot(x_data,radial_data, 'ko', markersize=2)
-    charts[1,0].plot(x_data,radial_fit,'tab:purple', linestyle='dashed')
-    charts[1,0].set_title("Radial Fit")
-    charts[1,0].set(xlabel='Pixel in SubFrame',ylabel='Counts')
-    charts[1,0].grid(1)
-
-    charts[1,1].imshow(subFrame, cmap='gray')
-    charts[1,1].plot(sF_length,sF_length, 'rx')
-    charts[1,1].set_title("Source SubFrame")
-
-    plt.suptitle(f"FWHM Curve Fitting for Source ID: {sourceID}\n{basename(fits_filename)}")
-    plt.tight_layout()
-    plt.savefig("{}_{}.png".format('.'.join(basename(fits_filename).split('.'))[:-1], sourceID))
+      plt.suptitle(f"FWHM Curve Fitting for Source ID: {sourceID}\n{fitsFile}")
+      plt.tight_layout()
+      plt.savefig("{}/{}_{}.png".format(inputPath,fitsFile[:-5], sourceID))
