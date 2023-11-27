@@ -156,7 +156,7 @@ if __name__ == '__main__':
       horizFWHMarc =  horizFWHMpix * 0.0317 * pixSize
       vertiFWHMarc =  vertiFWHMpix  * 0.0317 * pixSize
       radialFWHMarc = radialFWHMpix* 0.0317 * pixSize
-      #comment 
+      #comment again 
       
       print(f"Fits completed with the following residuals for {fitsFile}\nHorizontal: {horizResidual:0.3f}\nVertical: {vertiResidual:0.3f}\nRadial: {radialResidual:0.3f}\n")
       print(f"Horizontal FWHM(arcseconds): {horizFWHMarc:0.3f}\nVertical FWHM(arcseconds): {vertiFWHMarc:0.3f}\nRadial FWHM (arcseconds): {radialFWHMarc:0.3f}\n")
