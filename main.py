@@ -123,10 +123,10 @@ if __name__ == '__main__':
       ####Convert the STD to FWHM and convert to " (arcsec) based on FITS header
       horizFWHM = 2.355*horizParams[1]  * 0.0317 * pixSize
       vertiFWHM = 2.355*vertiParams[1]  * 0.0317 * pixSize
-      radFWHM   = 2.355*radialParams[1] * 0.0317 * pixSize
+      radialFWHM   = 2.355*radialParams[1] * 0.0317 * pixSize
       
       print(f"Fits completed with the following residuals for {fitsFile}\nRadial: {radialResidual:0.3f}\nHorizontal: {horizResidual:0.3f}\nVertical: {vertiResidual:0.3f}\n")
-      print(f"Radial FWHM: {radFWHM:0.3f}\nHorizontal FWHM: {horizFWHM:0.3f}\nVertical FWHM: {vertiFWHM:0.3f}")
+      print(f"Radial FWHM: {radialFWHM:0.3f}\nHorizontal FWHM: {horizFWHM:0.3f}\nVertical FWHM: {vertiFWHM:0.3f}")
 
       ####Generate Log
       with open(inputPath+"/FWHMscript-output-log.txt", "a") as f:
@@ -158,13 +158,13 @@ if __name__ == '__main__':
         #Per type of profile
         ##Write all HORIZONTAL fit parameters with residuals and FWHM
         f.write(f"Horizontal Fit\nmu:\t\t{horizParams[0]}\nsigma:\t\t{horizParams[1]}\namplitude:\t{horizParams[2]}\n"+\
-                f"offset:\t\t{horizParams[3]}\nResidual:\t{horizResidual}\nFWHM:\t\t{horizFWHM}\n")
+                f"offset:\t\t{horizParams[3]}\nResidual:\t{horizResidual}\nFWHM (arcseconds):\t\t{horizFWHM}\nFWHM (pixelspace):\t\t{horizParams[1]}\n")
         ##Write all VERTICAL fit parameters with residuals and FWHM
         f.write(f"Vertical Fit\nmu:\t\t{vertiParams[0]}\nsigma:\t\t{vertiParams[1]}\namplitude:\t{vertiParams[2]}\n"+\
-                f"offset:\t\t{vertiParams[3]}\nResidual:\t{vertiResidual}\nFWHM:\t\t{vertiFWHM}\n")
+                f"offset:\t\t{vertiParams[3]}\nResidual:\t{vertiResidual}\n\nFWHM (arcseconds):\t\t{vertiFWHM}\nFWHM (pixelspace):\t\t{vertiParams[1]}\n")
         ##Write all RADIAL fit parameters with residuals and FWHM
         f.write(f"Radial Fit\nmu:\t\t{radialParams[0]}\nsigma:\t\t{radialParams[1]}\namplitude:\t{radialParams[2]}\n"+\
-                f"offset:\t\t{radialParams[3]}\nResidual:\t{radialResidual}\nFWHM:\t\t{radFWHM}\n")
+                f"offset:\t\t{radialParams[3]}\nResidual:\t{radialResidual}\n\nFWHM (arcseconds):\t\t{radialFWHM}\nFWHM (pixelspace):\t\t{radialParams[1]}\n")
 
 
       ####Generate Plots
