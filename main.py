@@ -34,8 +34,6 @@ if __name__ == '__main__':
     exit(0)
 
 
-
-  
   #empty list, to be filled with all inputed .fits files
   directoryFits=[]
 
@@ -52,7 +50,7 @@ if __name__ == '__main__':
 
 
 
-  #setup log
+  #generate log file for current run
   fields=['file name','source id','obs time', 'camera used (pixel size)',\
         'horiztonal mu', 'horiztonal sigma', 'horiztonal amplitude','horiztonal offset',\
         'horizontal R2', 'horizontal FWHM pixel','horizontal FWHM arcsecond',\
@@ -71,7 +69,7 @@ if __name__ == '__main__':
   minute=f'{dTime[14:16]}'
   second=f'{dTime[17:19]}'
   runTime =f'{year}{month}{day}T{hour}{minute}{second}'
-  with open(f'{inputPath}/FWHMscript-output-log-{runTime}.csv', 'a') as f:
+  with open(f'{inputPath}/FWHMscripts-log-{runTime}.csv', 'a') as f:
         writer = csv.writer(f)
         writer.writerow(fields)
 
@@ -220,4 +218,4 @@ if __name__ == '__main__':
 
       plt.suptitle(f"FWHM Curve Fitting for Source ID: {sourceID}\n{fitsFile}")
       plt.tight_layout()
-      plt.savefig("{}/{}_{}.png".format(inputPath,fitsFile[:-5], sourceID))
+      plt.savefig("{}/{}_{}_{}.png".format(inputPath,fitsFile[:-5], sourceID,runTime))
