@@ -65,11 +65,11 @@ if __name__ == '__main__':
   #setup log
   fields=['file name','source id','obs time', 'camera used (pixel size)',\
         'horiztonal mu', 'horiztonal sigma', 'horiztonal amplitude','horiztonal offset',\
-        'horizontal residual', 'horizontal FWHM pixel','horizontal FWHM arcsecond',\
+        'horizontal R2', 'horizontal FWHM pixel','horizontal FWHM arcsecond',\
         'vertical mu', 'vertical  sigma', 'vertical  amplitude','vertical  offset',\
-        'vertical  residual', 'vertical  FWHM pixel','vertical  FWHM arcsecond',\
+        'vertical  R2', 'vertical  FWHM pixel','vertical  FWHM arcsecond',\
         'radial mu', 'radial sigma', 'radial amplitude','radial offset',\
-        'radial residual', 'radial FWHM pixel','radial FWHM arcsecond'\
+        'radial R2', 'radial FWHM pixel','radial FWHM arcsecond'\
                 ]
 
 
@@ -144,9 +144,26 @@ if __name__ == '__main__':
 
       ##Calculate Residuals
       ## SQRT( SUM( SQUARED_DIFFERENCES  ) ) / numDataPts
-      horizResidual  = np.sqrt( sum( (horizFit  - horizData)  **2 ) ) / (2*sfLength)
-      vertiResidual  = np.sqrt( sum( (vertiFit  - vertiData)  **2 ) ) / (2*sfLength)
-      radialResidual = np.sqrt( sum( (radialFit - radialData) **2 ) ) / (2*sfLength)
+
+      horizResList = (horizFit  - horizData)
+      horizSumSqrsRes=np.sum(horizResList*horizResList)
+      horizTotSumSqrs=np.sum((horizData-np.mean(horizData))**2)
+      horizR2=1.0-(horizSumSqrsRes/horizTotSumSqrs)
+
+      vertiResList = (vertiFit  - vertiData)
+      vertiSumSqrsRes=np.sum(vertiResList*vertiResList)
+      vertiTotSumSqrs=np.sum((vertiData-np.mean(vertiData))**2)
+      vertiR2=1.0-(vertiSumSqrsRes/vertiTotSumSqrs)
+
+      radialResList = (radialFit  - radialData)
+      radialSumSqrsRes=np.sum(radialResList*radialResList)
+      radialTotSumSqrs=np.sum((radialData-np.mean(radialData))**2)
+      radialR2=1.0-(radialSumSqrsRes/radialTotSumSqrs)
+
+      # horizResidual  = np.sqrt( sum( (horizFit  - horizData)  **2 ) ) / (2*sfLength)
+      # vertiResidual  = np.sqrt( sum( (vertiFit  - vertiData)  **2 ) ) / (2*sfLength)
+      # radialResidual = np.sqrt( sum( (radialFit - radialData) **2 ) ) / (2*sfLength)
+
       
       ####Convert the STD to FWHM and convert to " (arcsec) based on FITS header
       horizFWHMpix=2.355*horizParams[1]
@@ -158,7 +175,7 @@ if __name__ == '__main__':
       radialFWHMarc = radialFWHMpix* 0.0317 * pixSize
       #comment again 
       
-      print(f"Fits completed with the following residuals for {fitsFile}\nHorizontal: {horizResidual:0.3f}\nVertical: {vertiResidual:0.3f}\nRadial: {radialResidual:0.3f}\n")
+      print(f"Fits completed with the following R^2 s for {fitsFile}\nHorizontal: {horizR2:0.3f}\nVertical: {vertiR2:0.3f}\nRadial: {radialR2:0.3f}\n")
       print(f"Horizontal FWHM(arcseconds): {horizFWHMarc:0.3f}\nVertical FWHM(arcseconds): {vertiFWHMarc:0.3f}\nRadial FWHM (arcseconds): {radialFWHMarc:0.3f}\n")
 
       ####Generate Log
@@ -173,11 +190,11 @@ if __name__ == '__main__':
         
       data=[f'{basename(fitsFile)}',f'{sourceID}',f'{obsTime}',f'{hdul.header["INSTRUME"]} ({hdul.header["XPIXSZ"]} (um))',\
         f'{horizParams[0]}', f'{horizParams[1]}',f'{horizParams[2]}',f'{horizParams[3]}',\
-        f'{horizResidual}', f'{horizFWHMarc}', f'{horizFWHMpix}', \
+        f'{horizR2}', f'{horizFWHMarc}', f'{horizFWHMpix}', \
         f'{vertiParams[0]}', f'{vertiParams[1]}',f'{vertiParams[2]}',f'{vertiParams[3]}',\
-        f'{vertiResidual}', f'{vertiFWHMarc}', f'{vertiFWHMpix}', \
+        f'{vertiR2}', f'{vertiFWHMarc}', f'{vertiFWHMpix}', \
         f'{radialParams[0]}', f'{radialParams[1]}',f'{radialParams[2]}',f'{radialParams[3]}',\
-        f'{radialResidual}', f'{radialFWHMarc}', f'{radialFWHMpix}']
+        f'{radialR2}', f'{radialFWHMarc}', f'{radialFWHMpix}']
       
       with open(f'{inputPath}/FWHMscript-output-log-{runTime}.csv', 'a') as f:
         writer = csv.writer(f)
