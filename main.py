@@ -18,16 +18,6 @@ from sys import argv
 #Author-defined pckgs
 import profileFitting as pffit
 
-"""
-OVERALL TODOS:
-  - Some of the parameters in starfind should be made to update based on the measures of central tendancy above
-  - Adapt source code to work for all sources within some brightness threshold
-  - Build in support for changing plate scale (0.0317) for focal lengths
-      config file?
-  - Find a  way to extract bounds from the FITS file or make reasonable guesses
-   Roy suggests supplying the function with bounds based on FITS data/physical constraints of our detectors
-"""
-
 inputPath=None
 hdul=None
 
@@ -142,9 +132,7 @@ if __name__ == '__main__':
       vertiFit  = pffit.gaussian_1d(xData, *vertiParams)
       radialFit = pffit.gaussian_1d(xData, *radialParams)
 
-      ##Calculate Residuals
-      ## SQRT( SUM( SQUARED_DIFFERENCES  ) ) / numDataPts
-
+      ##Calculate R^2
       horizResList = (horizFit  - horizData)
       horizSumSqrsRes=np.sum(horizResList*horizResList)
       horizTotSumSqrs=np.sum((horizData-np.mean(horizData))**2)
@@ -160,6 +148,8 @@ if __name__ == '__main__':
       radialTotSumSqrs=np.sum((radialData-np.mean(radialData))**2)
       radialR2=1.0-(radialSumSqrsRes/radialTotSumSqrs)
 
+      # residuals code, no longer used
+      ## SQRT( SUM( SQUARED_DIFFERENCES  ) ) / numDataPts
       # horizResidual  = np.sqrt( sum( (horizFit  - horizData)  **2 ) ) / (2*sfLength)
       # vertiResidual  = np.sqrt( sum( (vertiFit  - vertiData)  **2 ) ) / (2*sfLength)
       # radialResidual = np.sqrt( sum( (radialFit - radialData) **2 ) ) / (2*sfLength)
@@ -173,7 +163,6 @@ if __name__ == '__main__':
       horizFWHMarc =  horizFWHMpix * 0.0317 * pixSize
       vertiFWHMarc =  vertiFWHMpix  * 0.0317 * pixSize
       radialFWHMarc = radialFWHMpix* 0.0317 * pixSize
-      #comment again 
       
       print(f"Fits completed with the following R^2 s for {fitsFile}\nHorizontal: {horizR2:0.3f}\nVertical: {vertiR2:0.3f}\nRadial: {radialR2:0.3f}\n")
       print(f"Horizontal FWHM(arcseconds): {horizFWHMarc:0.3f}\nVertical FWHM(arcseconds): {vertiFWHMarc:0.3f}\nRadial FWHM (arcseconds): {radialFWHMarc:0.3f}\n")
