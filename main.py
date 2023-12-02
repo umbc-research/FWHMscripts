@@ -219,3 +219,4 @@ if __name__ == '__main__':
       plt.suptitle(f"FWHM Curve Fitting for Source ID: {sourceID}\n{fitsFile}")
       plt.tight_layout()
       plt.savefig("{}/{}_{}_{}.png".format(inputPath,fitsFile[:-5], sourceID,runTime))
+    
