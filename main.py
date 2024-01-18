@@ -69,7 +69,7 @@ if __name__ == '__main__':
   minute=f'{dTime[14:16]}'
   second=f'{dTime[17:19]}'
   runTime =f'{year}{month}{day}T{hour}{minute}{second}'
-  with open(f'{inputPath}/FWHMscripts-log-{runTime}.csv', 'a') as f:
+  with open(f'{inputPath}/FWHMscript-output-log-{runTime}.csv', 'a') as f:
         writer = csv.writer(f)
         writer.writerow(fields)
 
@@ -219,4 +219,4 @@ if __name__ == '__main__':
       plt.suptitle(f"FWHM Curve Fitting for Source ID: {sourceID}\n{fitsFile}")
       plt.tight_layout()
       plt.savefig("{}/{}_{}_{}.png".format(inputPath,fitsFile[:-5], sourceID,runTime))
-    
+  
