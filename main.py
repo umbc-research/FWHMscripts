@@ -69,7 +69,7 @@ if __name__ == '__main__':
   minute=f'{dTime[14:16]}'
   second=f'{dTime[17:19]}'
   runTime =f'{year}{month}{day}T{hour}{minute}{second}'
-  with open(f'{inputPath}/FWHMscripts-log-{runTime}.csv', 'a') as f:
+  with open(f'{inputPath}/FWHMscript-output-log-{runTime}.csv', 'a') as f:
         writer = csv.writer(f)
         writer.writerow(fields)
 
@@ -166,15 +166,24 @@ if __name__ == '__main__':
       print(f"Horizontal FWHM(arcseconds): {horizFWHMarc:0.3f}\nVertical FWHM(arcseconds): {vertiFWHMarc:0.3f}\nRadial FWHM (arcseconds): {radialFWHMarc:0.3f}\n")
 
       ####Generate Log
-      uselesspart, data = f"{hdul.header['SIMPLE*']}".split("FITS: ")
-      timeInfo, uselesspart2 = data.split("E")
-       
-      datePart=timeInfo[:10]
-      timePart=timeInfo[11:].strip()
-      month, day, year = datePart.split("/")
-      hour, minute,second = timePart.split(":")
-      obsTime=f"{year}{month}{day}T{hour}{minute}{second}"
+
+
+      obsTime=""
+      try:
+        uselesspart, data = f"{hdul.header['SIMPLE*']}".split("FITS: ")
+        timeInfo, uselesspart2 = data.split("E")
         
+        datePart=timeInfo[:10]
+        timePart=timeInfo[11:].strip()
+        month, day, year = datePart.split("/")
+        hour, minute,second = timePart.split(":")
+        obsTime=f"{year}{month}{day}T{hour}{minute}{second}"
+      except:
+        datePart, timePart = hdul.header['DATE-OBS'].split("T")
+        year, month, day = datePart.split("-")
+        hour, minute = timePart.split(":")[:2]
+        obsTime=f"{year}{month}{day}T{hour}{minute}"
+
       data=[f'{basename(fitsFile)}',f'{sourceID}',f'{obsTime}',f'{hdul.header["INSTRUME"]} ({hdul.header["XPIXSZ"]} (um))',\
         f'{horizParams[0]}', f'{horizParams[1]}',f'{horizParams[2]}',f'{horizParams[3]}',\
         f'{horizR2}', f'{horizFWHMpix}', f'{horizFWHMarc}', \
@@ -219,4 +228,8 @@ if __name__ == '__main__':
       plt.suptitle(f"FWHM Curve Fitting for Source ID: {sourceID}\n{fitsFile}")
       plt.tight_layout()
       plt.savefig("{}/{}_{}_{}.png".format(inputPath,fitsFile[:-5], sourceID,runTime))
+<<<<<<< HEAD
   
+=======
+  
+>>>>>>> 10f96e52631665f179a18d7c0f37ea6d746505e4
