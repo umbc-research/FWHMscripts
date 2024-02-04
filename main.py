@@ -177,11 +177,11 @@ if __name__ == '__main__':
         
       data=[f'{basename(fitsFile)}',f'{sourceID}',f'{obsTime}',f'{hdul.header["INSTRUME"]} ({hdul.header["XPIXSZ"]} (um))',\
         f'{horizParams[0]}', f'{horizParams[1]}',f'{horizParams[2]}',f'{horizParams[3]}',\
-        f'{horizR2}', f'{horizFWHMarc}', f'{horizFWHMpix}', \
+        f'{horizR2}', f'{horizFWHMpix}', f'{horizFWHMarc}', \
         f'{vertiParams[0]}', f'{vertiParams[1]}',f'{vertiParams[2]}',f'{vertiParams[3]}',\
-        f'{vertiR2}', f'{vertiFWHMarc}', f'{vertiFWHMpix}', \
+        f'{vertiR2}', f'{vertiFWHMpix}', f'{vertiFWHMarc}', \
         f'{radialParams[0]}', f'{radialParams[1]}',f'{radialParams[2]}',f'{radialParams[3]}',\
-        f'{radialR2}', f'{radialFWHMarc}', f'{radialFWHMpix}']
+        f'{radialR2}', f'{radialFWHMpix}', f'{radialFWHMarc}']
       
       with open(f'{inputPath}/FWHMscript-output-log-{runTime}.csv', 'a') as f:
         writer = csv.writer(f)
@@ -219,4 +219,4 @@ if __name__ == '__main__':
       plt.suptitle(f"FWHM Curve Fitting for Source ID: {sourceID}\n{fitsFile}")
       plt.tight_layout()
       plt.savefig("{}/{}_{}_{}.png".format(inputPath,fitsFile[:-5], sourceID,runTime))
-    
+  
