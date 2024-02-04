@@ -5,6 +5,11 @@ import datetime as datetime
 import csv
 from ntpath import basename as basename
 
+
+from sys import argv 
+
+
+
 import astropy
 from astropy.io import fits
 from photutils.detection import DAOStarFinder,IRAFStarFinder
@@ -69,7 +74,14 @@ if __name__ == '__main__':
   minute=f'{dTime[14:16]}'
   second=f'{dTime[17:19]}'
   runTime =f'{year}{month}{day}T{hour}{minute}{second}'
-  with open(f'{inputPath}/FWHMscript-output-log-{runTime}.csv', 'a') as f:
+  exportPath=f'{inputPath}/FWHMscript-output-log.csv'
+  try:
+    if(argv[1]=="timed"):
+        exportPath=f'{inputPath}/FWHMscript-output-log-{runTime}.csv'
+  except:
+    pass
+    
+  with open(exportPath, 'a') as f:
         writer = csv.writer(f)
         writer.writerow(fields)
 
@@ -192,7 +204,7 @@ if __name__ == '__main__':
         f'{radialParams[0]}', f'{radialParams[1]}',f'{radialParams[2]}',f'{radialParams[3]}',\
         f'{radialR2}', f'{radialFWHMpix}', f'{radialFWHMarc}']
       
-      with open(f'{inputPath}/FWHMscript-output-log-{runTime}.csv', 'a') as f:
+      with open(exportPath, 'a') as f:
         writer = csv.writer(f)
         writer.writerow(data)
       
@@ -228,8 +240,3 @@ if __name__ == '__main__':
       plt.suptitle(f"FWHM Curve Fitting for Source ID: {sourceID}\n{fitsFile}")
       plt.tight_layout()
       plt.savefig("{}/{}_{}_{}.png".format(inputPath,fitsFile[:-5], sourceID,runTime))
-<<<<<<< HEAD
-  
-=======
-  
->>>>>>> 10f96e52631665f179a18d7c0f37ea6d746505e4
