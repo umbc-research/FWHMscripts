@@ -17,7 +17,7 @@ from photutils.detection import DAOStarFinder,IRAFStarFinder
 from ntpath import basename as basename
 
 from matplotlib import pyplot as plt
-from sys import argv
+from sys import argv, exit
 
 
 #Author-defined pckgs
@@ -104,16 +104,15 @@ if __name__ == '__main__':
     mean, median, std, max = np.mean(data), np.median(data), np.std(data), np.max(data)
 
     starFind = DAOStarFinder(threshold=median, fwhm=20.0, sky=500, exclude_border=True, brightest=10, peakmax=70000)
-    sourcesList = starFind(data)
-
-    #We'd need some logic here to determine which sources are good/bad to try to fit, for now just does brightest  
+    sourcesList = starFind(data[sfLength:-sfLength, sfLength:-sfLength])
 
     for sourceID in [0]:
 
       ####Extract a subframe
       #Find center of first (brightest) source
       #  This code is not perfect, but works for a single source (here the 0th)
-      xC, yC = sourcesList[0]['xcentroid'], sourcesList[0]['ycentroid']
+      xC, yC = sourcesList[0]['xcentroid']+sfLength, sourcesList[0]['ycentroid']+sfLength
+      
 
       #Slicing (and matrices in general in python) are (row, col)
       subFrame = data[int(yC - sfLength):int(yC + sfLength),int(xC - sfLength):int(xC + sfLength)]
