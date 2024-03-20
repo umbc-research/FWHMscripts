@@ -1,46 +1,23 @@
 import numpy as np
-import os.path
 import datetime as datetime
 import csv
 from ntpath import basename as basename
 
-from sys import argv 
+
+from sys import argv, exit
 from astropy.io import fits
 from photutils.detection import DAOStarFinder,IRAFStarFinder
 
 from matplotlib import pyplot as plt
 from sys import argv, exit
 
+from glob import glob
 
 #Author-defined pckgs
 import profileFitting as pffit
 
 inputPath=None
 hdul=None
-
-#function to load in fits data
-def loadFits(inputPath):
-  return fits.open(f'{inputPath}')[0]
-
-
-try:
-  inputPath = argv[1]
-except IndexError:
-  print("No file path provided as argument to python script.\nExiting")
-  exit(0)
-
-#empty list, to be filled with all inputed .fits files
-FITSLocations = []
-
-if inputPath.endswith(".fits") or inputPath.endswith(".fit"):
-  #storing single file, finidng directory for that file
-  FITSLocations.append(loadFits(inputPath))
-  inputPath=os.path.dirname(inputPath)
-else:
-  #storing all fits to be processed
-  for fitsFile in os.listdir(inputPath):
-    if(fitsFile.endswith(".fits") or fitsFile.endswith(".fit")):
-      FITSLocations.append(fitsFile)
 
 #generate log file for current run
 fields=['file name','source id','obs time', 'camera used (pixel size)',\
@@ -49,8 +26,24 @@ fields=['file name','source id','obs time', 'camera used (pixel size)',\
       'vertical mu', 'vertical  sigma', 'vertical  amplitude','vertical  offset',\
       'vertical  R2', 'vertical  FWHM pixel','vertical  FWHM arcsecond',\
       'radial mu', 'radial sigma', 'radial amplitude','radial offset',\
-      'radial R2', 'radial FWHM pixel','radial FWHM arcsecond'\
-              ]
+      'radial R2', 'radial FWHM pixel','radial FWHM arcsecond']
+            
+#function to load in fits data
+def loadFits(inputPath):
+  return fits.open(f'{inputPath}')[0]
+
+
+
+try:
+  inputPath = argv[1]
+except IndexError:
+  print("No file path provided as argument to python script.\nExiting")
+  exit(0)
+
+#empty list, to be filled with all found .fit* files
+FITSLocations = glob(inputPath+'/*.fit*')
+
+print(FITSLocations)
 
 
 dTime=f'{datetime.datetime.now()}'
