@@ -45,13 +45,9 @@ FITSLocations = glob(inputPath+'/*.fit*')
 runTime =datetime.datetime.strftime(datetime.datetime.now(), "%Y%m%dT%H%M%S")
 exportPath=f'{inputPath}/FWHMscript-output-log.csv'
 
-exit(1)
 
-try:
-  if(argv[1]=="timed"):
-      exportPath=f'{inputPath}/FWHMscript-output-log-{runTime}.csv'
-except:
-  pass
+if(argv[1]=="timed"):
+    exportPath=f'{inputPath}/FWHMscript-output-log-{runTime}.csv'
   
 with open(exportPath, 'a') as f:
       writer = csv.writer(f)
