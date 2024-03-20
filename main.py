@@ -32,8 +32,6 @@ fields=['file name','source id','obs time', 'camera used (pixel size)',\
 def loadFits(inputPath):
   return fits.open(f'{inputPath}')[0]
 
-
-
 try:
   inputPath = argv[1]
 except IndexError:
@@ -43,18 +41,12 @@ except IndexError:
 #empty list, to be filled with all found .fit* files
 FITSLocations = glob(inputPath+'/*.fit*')
 
-print(FITSLocations)
 
-
-dTime=f'{datetime.datetime.now()}'
-year=f'{dTime[:4]}'
-month=f'{dTime[5:7]}'
-day=f'{dTime[8:10]}'
-hour=f'{dTime[11:13]}'
-minute=f'{dTime[14:16]}'
-second=f'{dTime[17:19]}'
-runTime =f'{year}{month}{day}T{hour}{minute}{second}'
+runTime =datetime.datetime.strftime(datetime.datetime.now(), "%Y%m%dT%H%M%S")
 exportPath=f'{inputPath}/FWHMscript-output-log.csv'
+
+exit(1)
+
 try:
   if(argv[1]=="timed"):
       exportPath=f'{inputPath}/FWHMscript-output-log-{runTime}.csv'
