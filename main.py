@@ -58,7 +58,7 @@ with open(exportPath, 'a') as f:
 sfLength = 50
 
 #run calculations for every .fits file
-print(f"Found {len(FITSLocations)} FITS files in specified directory.\nCycling through these now.") 
+print(f"Found {len(FITSLocations)} FITS files in specified directory.\nCycling through these now.\n\n") 
 for idx, fitsFileName in enumerate(FITSLocations):
 
   print(f"Working on {fitsFileName} (index {idx})")
@@ -81,8 +81,13 @@ for idx, fitsFileName in enumerate(FITSLocations):
     ####Extract a subframe
     #Find center of first (brightest) source
     #  This code is not perfect, but works for a single source (here the 0th)
-    xC, yC = sourcesList[0]['xcentroid'] + sfLength, sourcesList[0]['ycentroid'] + sfLength
-    
+
+    try:
+      xC, yC = sourcesList[0]['xcentroid'] + sfLength, sourcesList[0]['ycentroid'] + sfLength
+    except TypeError:
+      print("No appropriate sources found\n")
+      continue
+
     #Slicing (and matrices in general in python) are (row, col)
     subFrame = data[int(yC - sfLength):int(yC + sfLength),int(xC - sfLength):int(xC + sfLength)]
 
@@ -125,24 +130,17 @@ for idx, fitsFileName in enumerate(FITSLocations):
     radialSumSqrsRes=np.sum(radialResList*radialResList)
     radialTotSumSqrs=np.sum((radialData-np.mean(radialData))**2)
     radialR2=1.0-(radialSumSqrsRes/radialTotSumSqrs)
-
-    # residuals code, no longer used
-    ## SQRT( SUM( SQUARED_DIFFERENCES  ) ) / numDataPts
-    # horizResidual  = np.sqrt( sum( (horizFit  - horizData)  **2 ) ) / (2*sfLength)
-    # vertiResidual  = np.sqrt( sum( (vertiFit  - vertiData)  **2 ) ) / (2*sfLength)
-    # radialResidual = np.sqrt( sum( (radialFit - radialData) **2 ) ) / (2*sfLength)
-
     
     ####Convert the STD to FWHM and convert to " (arcsec) based on FITS header
-    horizFWHMpix=2.355*horizParams[1]
-    vertiFWHMpix=2.355*vertiParams[1]
-    radialFWHMpix=2.355*radialParams[1]
+    horizFWHMpix  = 2.355*horizParams[1]
+    vertiFWHMpix  = 2.355*vertiParams[1]
+    radialFWHMpix = 2.355*radialParams[1]
 
-    horizFWHMarc =  horizFWHMpix * 0.0317 * pixSize
-    vertiFWHMarc =  vertiFWHMpix  * 0.0317 * pixSize
+    horizFWHMarc  = horizFWHMpix * 0.0317 * pixSize
+    vertiFWHMarc  = vertiFWHMpix  * 0.0317 * pixSize
     radialFWHMarc = radialFWHMpix* 0.0317 * pixSize
     
-    print(f"Fits completed with the following R^2 s for {fitsFileName}\nHorizontal: {horizR2:0.3f}\nVertical: {vertiR2:0.3f}\nRadial: {radialR2:0.3f}\n")
+    print(f"Fits completed with the following R^2 s for {fitsFileName}\nHorizontal: {horizR2:0.3f}\nVertical: {vertiR2:0.3f}\nRadial: {radialR2:0.3f}")
     print(f"Horizontal FWHM(arcseconds): {horizFWHMarc:0.3f}\nVertical FWHM(arcseconds): {vertiFWHMarc:0.3f}\nRadial FWHM (arcseconds): {radialFWHMarc:0.3f}\n")
 
     ####Generate Log
