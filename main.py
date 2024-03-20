@@ -41,11 +41,11 @@ except IndexError:
 #empty list, to be filled with all found .fit* files
 FITSLocations = glob(inputPath+'/*.fit*')
 
-
 runTime =datetime.datetime.strftime(datetime.datetime.now(), "%Y%m%dT%H%M%S")
 exportPath=f'{inputPath}/FWHMscript-output-log.csv'
 
 
+#How would anyone know to run the code in this way? @Olivia
 if(argv[1]=="timed"):
     exportPath=f'{inputPath}/FWHMscript-output-log-{runTime}.csv'
   
@@ -54,15 +54,16 @@ with open(exportPath, 'a') as f:
       writer.writerow(fields)
 
 ####Setting size of subFrames
-# leave as int!
+# leave as int! ## -- if this is important, cast as an integer.
 sfLength = 50
 
 #run calculations for every .fits file
 print(f"Found {len(FITSLocations)} FITS files in specified directory.\nCycling through these now.") 
-for fitsFileName in FITSLocations:
+for idx, fitsFileName in enumerate(FITSLocations):
 
+  print(f"Working on {fitsFileName} (index {idx})")
   #load in .fits file
-  hdul=loadFits(inputPath+"/"+fitsFileName)
+  hdul=loadFits(fitsFileName)
 
   #Assumed to be in um
   pixSize = float(hdul.header['XPIXSZ'])
@@ -77,7 +78,6 @@ for fitsFileName in FITSLocations:
 
   #hard-coded selection for only brightest/most star
   for sourceID in [0]:
-    print(sourceID)
     ####Extract a subframe
     #Find center of first (brightest) source
     #  This code is not perfect, but works for a single source (here the 0th)
@@ -142,7 +142,7 @@ for fitsFileName in FITSLocations:
     vertiFWHMarc =  vertiFWHMpix  * 0.0317 * pixSize
     radialFWHMarc = radialFWHMpix* 0.0317 * pixSize
     
-    print(f"Fits completed with the following R^2 s for {fitsFile}\nHorizontal: {horizR2:0.3f}\nVertical: {vertiR2:0.3f}\nRadial: {radialR2:0.3f}\n")
+    print(f"Fits completed with the following R^2 s for {fitsFileName}\nHorizontal: {horizR2:0.3f}\nVertical: {vertiR2:0.3f}\nRadial: {radialR2:0.3f}\n")
     print(f"Horizontal FWHM(arcseconds): {horizFWHMarc:0.3f}\nVertical FWHM(arcseconds): {vertiFWHMarc:0.3f}\nRadial FWHM (arcseconds): {radialFWHMarc:0.3f}\n")
 
     ####Generate Log
@@ -162,7 +162,7 @@ for fitsFileName in FITSLocations:
       hour, minute = timePart.split(":")[:2]
       obsTime=f"{year}{month}{day}T{hour}{minute}"
 
-    data=[f'{basename(fitsFile)}',f'{sourceID}',f'{obsTime}',f'{hdul.header["INSTRUME"]} ({hdul.header["XPIXSZ"]} (um))',\
+    data=[f'{basename(fitsFileName)}',f'{sourceID}',f'{obsTime}',f'{hdul.header["INSTRUME"]} ({hdul.header["XPIXSZ"]} (um))',\
       f'{horizParams[0]}', f'{horizParams[1]}',f'{horizParams[2]}',f'{horizParams[3]}',\
       f'{horizR2}', f'{horizFWHMpix}', f'{horizFWHMarc}', \
       f'{vertiParams[0]}', f'{vertiParams[1]}',f'{vertiParams[2]}',f'{vertiParams[3]}',\
@@ -203,6 +203,6 @@ for fitsFileName in FITSLocations:
     charts[1,1].plot(sfLength,sfLength, 'rx')
     charts[1,1].set_title("Source SubFrame")
 
-    plt.suptitle(f"FWHM Curve Fitting for Source ID: {sourceID}\n{fitsFile}")
+    plt.suptitle(f"FWHM Curve Fitting for Source ID: {sourceID}\n{fitsFileName}")
     plt.tight_layout()
-    plt.savefig("{}/{}_{}_{}.png".format(inputPath,fitsFile[:-5], sourceID,runTime))
+    plt.savefig("{}_{}_{}.png".format(fitsFileName[:-5], sourceID,runTime))
