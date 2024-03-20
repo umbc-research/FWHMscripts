@@ -1,20 +1,12 @@
-import scipy
 import numpy as np
 import os.path
 import datetime as datetime
 import csv
 from ntpath import basename as basename
 
-
 from sys import argv 
-
-
-
-import astropy
 from astropy.io import fits
 from photutils.detection import DAOStarFinder,IRAFStarFinder
-
-from ntpath import basename as basename
 
 from matplotlib import pyplot as plt
 from sys import argv, exit
@@ -38,22 +30,18 @@ if __name__ == '__main__':
     print("No file path provided as argument to python script.\nExiting")
     exit(0)
 
-
   #empty list, to be filled with all inputed .fits files
-  directoryFits=[]
+  FITSLocations = []
 
   if inputPath.endswith(".fits") or inputPath.endswith(".fit"):
     #storing single file, finidng directory for that file
-    directoryFits.append(loadFits(inputPath))
+    FITSLocations.append(loadFits(inputPath))
     inputPath=os.path.dirname(inputPath)
   else:
     #storing all fits to be processed
     for fitsFile in os.listdir(inputPath):
       if(fitsFile.endswith(".fits") or fitsFile.endswith(".fit")):
-        directoryFits.append(fitsFile)
-
-
-
+        FITSLocations.append(fitsFile)
 
   #generate log file for current run
   fields=['file name','source id','obs time', 'camera used (pixel size)',\
@@ -85,15 +73,16 @@ if __name__ == '__main__':
         writer = csv.writer(f)
         writer.writerow(fields)
 
+  ####Setting size of subFrames
+  # leave as int!
+  sfLength = 50
 
   #run calculations for every .fits file
-  for fitsFile in directoryFits:
-    ####Setting size of subFrames
-    # leave as int!
-    sfLength = 50
+  print(f"Found {len(FITSLocations)} FITS files in specified directory.\nCycling through these now.") 
+  for fitsFileName in FITSLocations:
 
     #load in .fits file
-    hdul=loadFits(inputPath+"/"+fitsFile)
+    hdul=loadFits(inputPath+"/"+fitsFileName)
 
     #Assumed to be in um
     pixSize = float(hdul.header['XPIXSZ'])
@@ -106,14 +95,14 @@ if __name__ == '__main__':
     starFind = DAOStarFinder(threshold=median, fwhm=20.0, sky=500, exclude_border=True, brightest=10, peakmax=70000)
     sourcesList = starFind(data[sfLength:-sfLength, sfLength:-sfLength])
 
+    #hard-coded selection for only brightest/most star
     for sourceID in [0]:
-
+      print(sourceID)
       ####Extract a subframe
       #Find center of first (brightest) source
       #  This code is not perfect, but works for a single source (here the 0th)
-      xC, yC = sourcesList[0]['xcentroid']+sfLength, sourcesList[0]['ycentroid']+sfLength
+      xC, yC = sourcesList[0]['xcentroid'] + sfLength, sourcesList[0]['ycentroid'] + sfLength
       
-
       #Slicing (and matrices in general in python) are (row, col)
       subFrame = data[int(yC - sfLength):int(yC + sfLength),int(xC - sfLength):int(xC + sfLength)]
 
@@ -177,8 +166,6 @@ if __name__ == '__main__':
       print(f"Horizontal FWHM(arcseconds): {horizFWHMarc:0.3f}\nVertical FWHM(arcseconds): {vertiFWHMarc:0.3f}\nRadial FWHM (arcseconds): {radialFWHMarc:0.3f}\n")
 
       ####Generate Log
-
-
       obsTime=""
       try:
         uselesspart, data = f"{hdul.header['SIMPLE*']}".split("FITS: ")
