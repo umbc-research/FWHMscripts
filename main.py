@@ -4,6 +4,8 @@ import csv
 from ntpath import basename as basename
 
 
+# secret comment
+
 from sys import argv, exit
 from astropy.io import fits
 from photutils.detection import DAOStarFinder,IRAFStarFinder
