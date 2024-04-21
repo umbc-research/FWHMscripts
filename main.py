@@ -19,13 +19,6 @@ inputPath=None
 hdul=None
 
 #generate log file for current run
-fields=['file name','source id','obs time', 'camera used (pixel size)',\
-      'horiztonal mu', 'horiztonal sigma', 'horiztonal amplitude','horiztonal offset',\
-      'horizontal R2', 'horizontal FWHM pixel','horizontal FWHM arcsecond',\
-      'vertical mu', 'vertical  sigma', 'vertical  amplitude','vertical  offset',\
-      'vertical  R2', 'vertical  FWHM pixel','vertical  FWHM arcsecond',\
-      'radial mu', 'radial sigma', 'radial amplitude','radial offset',\
-      'radial R2', 'radial FWHM pixel','radial FWHM arcsecond']
 
 fields=['file name','source id','obs time', 'camera used (pixel size)',\
         'horiztonal amplitude', 'horiztonal sigma', 'horiztonal offset',\
@@ -34,8 +27,6 @@ fields=['file name','source id','obs time', 'camera used (pixel size)',\
         'vertical FWHM pixel', 'vertical FWHM arcsecond','vertical R2', 'vertical mu', \
         'radial amplitude',  'radial sigma', 'radial offset',\
         'radial FWHM pixel', 'radial FWHM arcsecond','radial R2', 'radial mu' ]
-
-
 
             
 #function to load in fits data
@@ -171,13 +162,10 @@ for idx, fitsFileName in enumerate(FITSLocations):
       obsTime=f"{year}{month}{day}T{hour}{minute}"
 
     data=[f'{basename(fitsFileName)}',f'{sourceID}',f'{obsTime}',f'{hdul.header["INSTRUME"]} ({hdul.header["XPIXSZ"]} (um))',\
-      f'{horizParams[0]}', f'{horizParams[1]}',f'{horizParams[2]}',f'{horizParams[3]}',\
-      f'{horizFWHMpix}', f'{horizFWHMarc}', f'{horizR2}', \
-      f'{vertiParams[0]}', f'{vertiParams[1]}',f'{vertiParams[2]}',f'{vertiParams[3]}',\
-      f'{vertiFWHMpix}', f'{vertiFWHMarc}', f'{vertiR2}', \
+         f'{horizParams[2]}', f'{horizParams[1]}', f'{horizParams[3]}', f'{horizFWHMpix}', f'{horizFWHMarc}', f'{horizR2}',f'{horizParams[0]}',\
+         f'{vertiParams[2]}', f'{vertiParams[1]}', f'{vertiParams[3]}', f'{vertiFWHMpix}', f'{vertiFWHMarc}', f'{vertiR2}',f'{vertiParams[0]}',\
+         f'{radialParams[2]}', f'{radialParams[1]}', f'{radialParams[3]}', f'{radialFWHMpix}', f'{radialFWHMarc}', f'{radialR2}',f'{radialParams[0]}']
 
-      f'{radialParams[0]}', f'{radialParams[1]}',f'{radialParams[2]}',f'{radialParams[3]}',\
-      f'{radialFWHMpix}', f'{radialFWHMarc}', f'{radialR2}']
 
     
     with open(exportPath, 'a') as f:
